@@ -1,0 +1,1864 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>912</width>
+    <height>757</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>912</width>
+    <height>757</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="l_busy">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>108</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>busy</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="l_all_ports">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>all_ports</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2" colspan="2">
+     <widget class="QLineEdit" name="l_date_time">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>260</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>date_time</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QLineEdit" name="l_data">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>360</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>data</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="5">
+     <widget class="QTabWidget" name="win_area">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>891</width>
+        <height>580</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <stylestrategy>PreferDefault</stylestrategy>
+        <kerning>true</kerning>
+       </font>
+      </property>
+      <property name="mouseTracking">
+       <bool>false</bool>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
+      <property name="acceptDrops">
+       <bool>false</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(170, 170, 170);</string>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideMiddle</enum>
+      </property>
+      <property name="movable">
+       <bool>false</bool>
+      </property>
+      <property name="tabBarAutoHide">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="page1">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page2">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>2</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page3">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>3</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page4">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>4</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page5">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>5</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page6">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>6</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page7">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>7</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page8">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>8</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page9">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>9</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page10">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>10</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page11">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>11</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page12">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>12</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page13">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>13</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page14">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>14</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page15">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>15</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page16">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <attribute name="title">
+        <string>16</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="3">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>380</width>
+        <height>48</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="3">
+     <widget class="QLabel" name="run">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>320</width>
+        <height>48</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>912</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Features</string>
+    </property>
+    <widget class="QMenu" name="menuCallForward">
+     <property name="title">
+      <string>CallForward</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/png/red_marker.png</normaloff>:/png/red_marker.png</iconset>
+     </property>
+     <widget class="QMenu" name="menuAll">
+      <property name="title">
+       <string>All</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Red_act.png</normaloff>:/png/Red_act.png</iconset>
+      </property>
+      <widget class="QMenu" name="menuInternal">
+       <property name="title">
+        <string>Internal</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet"/>
+       <addaction name="actionRemove"/>
+      </widget>
+      <widget class="QMenu" name="menuExternal">
+       <property name="title">
+        <string>External</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet_2"/>
+       <addaction name="actionRemove_2"/>
+      </widget>
+      <addaction name="menuInternal"/>
+      <addaction name="menuExternal"/>
+     </widget>
+     <widget class="QMenu" name="menuBusy">
+      <property name="title">
+       <string>Busy</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Red_act.png</normaloff>:/png/Red_act.png</iconset>
+      </property>
+      <widget class="QMenu" name="menuInternal_2">
+       <property name="title">
+        <string>Internal</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet_24"/>
+       <addaction name="actionUnSet_21"/>
+      </widget>
+      <widget class="QMenu" name="menuExternal_2">
+       <property name="title">
+        <string>External</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet_25"/>
+       <addaction name="actionUnSet_22"/>
+      </widget>
+      <addaction name="menuInternal_2"/>
+      <addaction name="menuExternal_2"/>
+     </widget>
+     <widget class="QMenu" name="menuNoAnswer">
+      <property name="title">
+       <string>NoAnswer</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Red_act.png</normaloff>:/png/Red_act.png</iconset>
+      </property>
+      <widget class="QMenu" name="menuInternal_3">
+       <property name="title">
+        <string>Internal</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet_26"/>
+       <addaction name="actionUnSet_23"/>
+      </widget>
+      <widget class="QMenu" name="menuExternal_3">
+       <property name="title">
+        <string>External</string>
+       </property>
+       <property name="icon">
+        <iconset resource="icons.qrc">
+         <normaloff>:/png/Disa.png</normaloff>:/png/Disa.png</iconset>
+       </property>
+       <addaction name="actionSet_27"/>
+       <addaction name="actionUnSet_24"/>
+      </widget>
+      <addaction name="menuInternal_3"/>
+      <addaction name="menuExternal_3"/>
+     </widget>
+     <addaction name="menuAll"/>
+     <addaction name="menuBusy"/>
+     <addaction name="menuNoAnswer"/>
+    </widget>
+    <widget class="QMenu" name="menuSubscriber">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="title">
+      <string>Subscriber</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/png/green_marker.png</normaloff>:/png/green_marker.png</iconset>
+     </property>
+     <widget class="QMenu" name="menuBlocking">
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="title">
+       <string>Blocking</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_3"/>
+      <addaction name="actionUnSet"/>
+     </widget>
+     <widget class="QMenu" name="menuDoNotDist">
+      <property name="title">
+       <string>DoNotDist</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_4"/>
+      <addaction name="actionUnSet_2"/>
+     </widget>
+     <widget class="QMenu" name="menuHot_call_with_delay">
+      <property name="title">
+       <string>Hot call/with delay</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_5"/>
+      <addaction name="actionUnSet_3"/>
+     </widget>
+     <widget class="QMenu" name="menuHot_call">
+      <property name="title">
+       <string>Hot call</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_6"/>
+      <addaction name="actionUbset"/>
+     </widget>
+     <widget class="QMenu" name="menuOn_Off_writing_of_report_spec_calls">
+      <property name="title">
+       <string>On/Off writing of report spec. calls</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_7"/>
+      <addaction name="actionUnSet_4"/>
+     </widget>
+     <widget class="QMenu" name="menuPrinting_spec_calls">
+      <property name="title">
+       <string>Printing spec.calls</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_8"/>
+      <addaction name="actionUnSet_5"/>
+     </widget>
+     <widget class="QMenu" name="menuOutgoing_only">
+      <property name="title">
+       <string>Outgoing only</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_9"/>
+      <addaction name="actionUnSet_6"/>
+     </widget>
+     <widget class="QMenu" name="menuDisable_access_to_trunks">
+      <property name="title">
+       <string>Disable access to trunks</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_10"/>
+      <addaction name="actionUnSet_7"/>
+     </widget>
+     <widget class="QMenu" name="menuIncomming_only">
+      <property name="title">
+       <string>Incomming only</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Green_act.png</normaloff>:/png/Green_act.png</iconset>
+      </property>
+      <addaction name="actionSet_11"/>
+      <addaction name="actionUnSet_8"/>
+     </widget>
+     <addaction name="menuBlocking"/>
+     <addaction name="menuDoNotDist"/>
+     <addaction name="menuHot_call_with_delay"/>
+     <addaction name="menuHot_call"/>
+     <addaction name="menuOn_Off_writing_of_report_spec_calls"/>
+     <addaction name="menuPrinting_spec_calls"/>
+     <addaction name="menuOutgoing_only"/>
+     <addaction name="menuDisable_access_to_trunks"/>
+     <addaction name="menuIncomming_only"/>
+    </widget>
+    <widget class="QMenu" name="menuTrunk">
+     <property name="title">
+      <string>Trunk</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/png/blue_marker.png</normaloff>:/png/blue_marker.png</iconset>
+     </property>
+     <widget class="QMenu" name="menuAuto_Guard">
+      <property name="title">
+       <string>Auto Guard</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_12"/>
+      <addaction name="actionUnSet_9"/>
+     </widget>
+     <widget class="QMenu" name="menuBusy_out">
+      <property name="title">
+       <string>Busy out</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_13"/>
+      <addaction name="actionUnSet_10"/>
+     </widget>
+     <widget class="QMenu" name="menuCO_Blocked_Display">
+      <property name="title">
+       <string>CO Blocked Display</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_14"/>
+      <addaction name="actionUnSet_11"/>
+     </widget>
+     <widget class="QMenu" name="menuDirect_In_Line_Day">
+      <property name="title">
+       <string>Direct In Line: Day</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_15"/>
+      <addaction name="actionUnSet_12"/>
+     </widget>
+     <widget class="QMenu" name="menuDirect_In_Line_Night1">
+      <property name="title">
+       <string>Direct In Line: Night1</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_16"/>
+      <addaction name="actionUnSet_13"/>
+     </widget>
+     <widget class="QMenu" name="menuDirect_In_Line_Night2">
+      <property name="title">
+       <string>Direct In Line: Night2</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_17"/>
+      <addaction name="actionUnSet_14"/>
+     </widget>
+     <widget class="QMenu" name="menuDrop_On_No_Dial">
+      <property name="title">
+       <string>Drop On No Dial</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_18"/>
+      <addaction name="actionUnSet_15"/>
+     </widget>
+     <widget class="QMenu" name="menuHot_Trunk_Delayed">
+      <property name="title">
+       <string>Hot Trunk Delayed</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_19"/>
+      <addaction name="actionUnSet_16"/>
+     </widget>
+     <widget class="QMenu" name="menuHot_Trunk_Imm">
+      <property name="title">
+       <string>Hot Trunk Imm.</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_20"/>
+      <addaction name="actionUnSet_17"/>
+     </widget>
+     <widget class="QMenu" name="menuIncomming_Only">
+      <property name="title">
+       <string>Incomming Only</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_21"/>
+      <addaction name="actionUnSet_18"/>
+     </widget>
+     <widget class="QMenu" name="menuOutgoing_Only">
+      <property name="title">
+       <string>Outgoing Only</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_22"/>
+      <addaction name="actionUnSet_19"/>
+     </widget>
+     <widget class="QMenu" name="menuReserved_To">
+      <property name="title">
+       <string>Reserved To</string>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/png/Blue_act.png</normaloff>:/png/Blue_act.png</iconset>
+      </property>
+      <addaction name="actionSet_23"/>
+      <addaction name="actionUnSet_20"/>
+     </widget>
+     <addaction name="menuAuto_Guard"/>
+     <addaction name="menuBusy_out"/>
+     <addaction name="menuCO_Blocked_Display"/>
+     <addaction name="menuDirect_In_Line_Day"/>
+     <addaction name="menuDirect_In_Line_Night1"/>
+     <addaction name="menuDirect_In_Line_Night2"/>
+     <addaction name="menuDrop_On_No_Dial"/>
+     <addaction name="menuHot_Trunk_Delayed"/>
+     <addaction name="menuHot_Trunk_Imm"/>
+     <addaction name="menuIncomming_Only"/>
+     <addaction name="menuOutgoing_Only"/>
+     <addaction name="menuReserved_To"/>
+    </widget>
+    <widget class="QMenu" name="menuSpecialFeatures">
+     <property name="title">
+      <string>SpecialFeatures</string>
+     </property>
+     <property name="icon">
+      <iconset resource="icons.qrc">
+       <normaloff>:/png/yellow_marker.png</normaloff>:/png/yellow_marker.png</iconset>
+     </property>
+     <addaction name="actionTo_Release_Port"/>
+     <addaction name="actionCheck_In"/>
+     <addaction name="actionCheck_Out"/>
+    </widget>
+    <addaction name="menuSubscriber"/>
+    <addaction name="menuTrunk"/>
+    <addaction name="menuCallForward"/>
+    <addaction name="separator"/>
+    <addaction name="menuSpecialFeatures"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Service</string>
+    </property>
+    <addaction name="actionReport_of_post_messages_to_subscribers"/>
+    <addaction name="actionReport_blocking_file"/>
+    <addaction name="actionReport_of_maliciouse_calls"/>
+    <addaction name="actionSnapShot_all_trunk_groups"/>
+    <addaction name="actionCalc"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Admin</string>
+    </property>
+    <addaction name="actionEnable_menu"/>
+    <addaction name="actionDisable_menu"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="actionRelease"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </widget>
+  <action name="actionSet">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionRemove">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionRemove_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_3">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_4">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_2">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_5">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_3">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_6">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUbset">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Unset</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_7">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_4">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_8">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_5">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_9">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_6">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_10">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_7">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_11">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_8">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_12">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_9">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_13">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_10">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_14">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_11">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_15">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_12">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_16">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_13">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_17">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_14">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_18">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_15">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_19">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_16">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_20">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_17">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_21">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_18">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_22">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_19">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_23">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_20">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_24">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_21">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_25">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_22">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_26">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_23">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSet_27">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionUnSet_24">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>UnSet</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionTo_Release_Port">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/Yellow_act.png</normaloff>:/png/Yellow_act.png</iconset>
+   </property>
+   <property name="text">
+    <string>To Release Port</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionCheck_In">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/Yellow_act.png</normaloff>:/png/Yellow_act.png</iconset>
+   </property>
+   <property name="text">
+    <string>Check In</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionCheck_Out">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/Yellow_act.png</normaloff>:/png/Yellow_act.png</iconset>
+   </property>
+   <property name="text">
+    <string>Check Out</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionReport_of_post_messages_to_subscribers">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/doc.png</normaloff>:/png/doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>Report of post messages to subscribers</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionReport_blocking_file">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/doc.png</normaloff>:/png/doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>Report blocking file</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionReport_of_maliciouse_calls">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/doc.png</normaloff>:/png/doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>Report of maliciouse calls</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionSnapShot_all_trunk_groups">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/doc.png</normaloff>:/png/doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>SnapShot all trunk_groups</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionCalc">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/icalc.png</normaloff>:/png/icalc.png</iconset>
+   </property>
+   <property name="text">
+    <string>Calc</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionEnable_menu">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/enable.png</normaloff>:/png/enable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Enable menu</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionDisable_menu">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/disable.png</normaloff>:/png/disable.png</iconset>
+   </property>
+   <property name="text">
+    <string>Disable menu</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/help.png</normaloff>:/png/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionRelease">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/info.png</normaloff>:/png/info.png</iconset>
+   </property>
+   <property name="text">
+    <string>Release</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

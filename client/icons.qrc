@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>png/main.png</file>
+        <file>png/info.png</file>
+        <file>png/help.png</file>
+        <file>png/enable.png</file>
+        <file>png/disable.png</file>
+        <file>png/blue_marker.png</file>
+        <file>png/green_marker.png</file>
+        <file>png/red_marker.png</file>
+        <file>png/yellow_marker.png</file>
+        <file>png/icalc.png</file>
+        <file>png/doc.png</file>
+        <file>png/GreenTag.png</file>
+        <file>png/BlackTag.png</file>
+        <file>png/move.gif</file>
+        <file>png/Key.png</file>
+        <file>png/Lock.png</file>
+        <file>png/Blue_act.png</file>
+        <file>png/Green_act.png</file>
+        <file>png/Red_act.png</file>
+        <file>png/Yellow_act.png</file>
+        <file>png/Disa.png</file>
+    </qresource>
+</RCC>
