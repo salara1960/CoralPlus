@@ -21,7 +21,7 @@ QString ServerIPAddress = "127.0.0.1:6543";
 QString CfgFil = "coral.npl";
 QString TrkFil = "coral.trk";
 QString myPwd;
-const QString _myPwd = "zero1960";
+const QString _myPwd = "zero";
 const QString def_srv_adr = "127.0.0.1";
 const int def_srv_port = 6543;
 const int wTime = 10;
