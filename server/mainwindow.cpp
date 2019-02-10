@@ -4,7 +4,8 @@
 
 //const QString ver = "1.0 rc1";//07.02.2019
 //const QString ver = "1.1 rc1";//08.02.2019
-const QString ver = "1.2";//08.02.2019
+//const QString ver = "1.2";//08.02.2019
+const QString ver = "1.3";//10.02.2019
 
 bool demos = false;
 
@@ -15,6 +16,11 @@ const QString LogFileName = "srv_logs.txt";
 const QString ipFileName = "coral.ip";
 
 const s_cli def_cli = {"", false, nullptr, 0};
+
+const static char *all_param_name[] = {"mode=", "bind=", "serial="};
+uint16_t bPort = DEF_PORT_NUMBER;
+QString sPort = def_serial_port;
+int sSpeed = DEF_SPEED;
 
 //--------------------------------------------------------------------------------
 void LogSave(const char *func, QString st, bool pr)
@@ -50,6 +56,39 @@ void LogSave(const char *func, QString st, bool pr)
 
             fil.write(fw.toLocal8Bit(), fw.length());
             fil.close();
+        }
+    }
+
+}
+//-----------------------------------------------------------------------
+void parse_param_start(char *param)
+{
+char *uk = nullptr, *uki = nullptr;
+
+    uk = strstr(param, all_param_name[0]);//mode
+    if (uk) {
+        uk += strlen(all_param_name[0]);
+        if (!strcmp(uk, "demo")) demos = true;
+    } else {
+        uk = strstr(param, all_param_name[1]);//tcp_bind_port
+        if (uk) {
+            uk += strlen(all_param_name[1]);
+            bPort = static_cast<uint16_t>(atoi(uk));
+        } else {
+            uk = strstr(param, all_param_name[2]);//serial_port:speed
+            if (uk) {
+                uk += strlen(all_param_name[2]);
+                uki = strchr(uk, ':');
+                if (uki) {
+                    sSpeed = atoi(uki + 1);
+                    *uki = '\0';
+                    if (sSpeed < DEF_SPEED) sSpeed = DEF_SPEED;
+                }
+                if (strlen(uk) > 0) {
+                    sPort.clear();
+                    sPort.append(uk);
+                }
+            }
         }
     }
 
@@ -120,7 +159,7 @@ QString qstx;
     return (ip_adr.length() ? true : false);
 }
 //-----------------------------------------------------------------------------------
-MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -135,8 +174,10 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp) : QMainWindow(p
 
     ui->cli1->hide(); ui->cli2->hide();
 
+    serial_speed = ss;
     serial_port = sp;
     bind_port = bp;
+
     tcpServer = nullptr;
     server_status = 0;
 
@@ -146,12 +187,15 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp) : QMainWindow(p
     cnt = 0;
     ip_adr.clear();
     all_cli.clear();
-    QString temp = "";
     buf.clear();
     max_period = def_max_period;
 
-    LogSave(__func__, "Start server", true);
+    QString temp = "Start server with :\n\tbind_port " + QString::number(bind_port, 10) + "\n"
+                    + "\tserial_port " + serial_port + " "
+                    + QString::number(serial_speed, 10) + " 8N1";
+    LogSave(__func__, temp, true);
 
+    temp.clear();
     if (GetIpFile()) {
         temp.append("Client's address : ");
         int i = 0;
@@ -189,11 +233,29 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp) : QMainWindow(p
     }
 
 
-    if (demos) {
+    if (demos) {//demo mode
         dmpFile = new QFile(DemoFileName);
         if (dmpFile) {
             connect(this, SIGNAL(sigDemoGetData()), this, SLOT(slotDemoGetData()));
             dmpFile->open(QIODevice::ReadOnly);
+        }
+    } else {//working mode
+        sobj = new QSerialPort();
+        if (sobj) {
+            sobj->setPortName(serial_port);
+            sobj->setBaudRate(serial_speed);
+            sobj->setDataBits(QSerialPort::Data8);
+            sobj->setFlowControl(QSerialPort::NoFlowControl);
+            sobj->setParity(QSerialPort::NoParity);
+            sobj->setStopBits(QSerialPort::OneStop);
+            sobj->setReadBufferSize(18);
+            sobj->open(QIODevice::ReadOnly);
+            sobj->flush();
+            sobj->clear(QSerialPort::Input);
+            QObject::connect(sobj, &QSerialPort::readyRead, this, &MainWindow::sReadyRead);
+            QObject::connect(sobj, &QSerialPort::errorOccurred, this, &MainWindow::sError);
+            QObject::connect(&serial_timer, &QTimer::timeout, this, &MainWindow::sTimeout);
+            serial_timer.start(DEF_TIMEOUT);
         }
     }
 
@@ -216,9 +278,10 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp) : QMainWindow(p
     ui->status->setText(temp);
     LogSave(__func__, temp, true);
 
-    connect(this, SIGNAL(sigSendPack()), this, SLOT(slotSendPack()));
+    connect(this, SIGNAL(sigSendPack(QByteArray &)), this, SLOT(slotSendPack(QByteArray &)));
 
     ui->cat->setText("Wait new packet ...");
+
 }
 //-----------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -227,7 +290,14 @@ MainWindow::~MainWindow()
         if (dmpFile->isOpen()) dmpFile->close();
         delete dmpFile;
     }
-    if (sobj) delete sobj;
+    if (sobj) {
+        serial_timer.stop();
+        if (sobj->isOpen()) {
+            sobj->flush();
+            sobj->close();
+        }
+        delete sobj;
+    }
 
     int i = 0;
     while (i < all_cli.length()) {
@@ -246,6 +316,55 @@ MainWindow::~MainWindow()
     delete ui;
 }
 //------------------------------------------------------------------------------
+void MainWindow::sReadyRead()
+{
+int i = 0;
+bool yes = false;
+quint8 eop = 238;
+QByteArray arr;
+
+    while (true) {
+        i++;
+        buf += sobj->read(1);
+        if (buf.contains(eop)) {
+            yes = true;
+            break;
+        } else if (i > 11) break;
+    }
+
+    if (!serial_timer.isActive()) serial_timer.start(DEF_TIMEOUT);
+
+    if (yes) {
+        arr = buf;
+        buf.clear();
+        QString tmp = arr.toHex().toUpper();
+        total_pack++;
+        ui->packet->setText(tmp);
+        ui->cat->setText("Getting packet # " + QString::number(total_pack, 10) + " done");
+        emit sigSendPack(arr);
+    }
+
+}
+//------------------------------------------------------------------------------
+void MainWindow::sTimeout()
+{
+    if (!buf.isEmpty()) {
+        LogSave(__func__, buf.toHex().toUpper(), true);
+    }
+    if (!serial_timer.isActive()) serial_timer.start(DEF_TIMEOUT);
+}
+//------------------------------------------------------------------------------
+void MainWindow::sError(QSerialPort::SerialPortError code_sError)
+{
+    if (code_sError == QSerialPort::ReadError) {
+        QString stx = tr("Error reading data from '%1' -> '%2'").arg(sobj->portName()).arg(sobj->errorString());
+        ui->status->setText(stx);
+        LogSave(__func__, stx, true);
+    }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MainWindow::cli_prn(s_cli *sc)
 {
 void *uk = sc->soc;
@@ -259,7 +378,7 @@ QString tmp = "ip_adr:" + sc->ip_adr;
 
 }
 //------------------------------------------------------------------------------
-void MainWindow::slotSendPack()
+void MainWindow::slotSendPack(QByteArray &bf)
 {
 int i = 0;
 bool yes = false;
@@ -267,23 +386,26 @@ bool yes = false;
     while (i < all_cli.length()) {
         cli = all_cli.at(i++);
         if ((cli.connected) && (cli.soc)) {
-            cli.soc->write(buf);
+            cli.soc->write(bf);
             yes = true;
         }
     }
     if (yes) ui->cat->setText("Sending packet # " + QString::number(total_pack, 10) + " done");
+
+    //buf.clear();
 }
 //------------------------------------------------------------------------------
 void MainWindow::slotDemoGetData()
 {
     ui->cat->setText("Getting new packet ...");
     if (readserdmp()) {
-        QString tmp = buf.toHex().toUpper();
+        QByteArray arr = buf;
+        QString tmp = arr.toHex().toUpper();
         total_pack++;
         ui->packet->setText(tmp);
 //        LogSave(__func__, "Packet : " + tmp, true);
         ui->cat->setText("Getting packet # " + QString::number(total_pack, 10) + " done");
-        emit sigSendPack();
+        emit sigSendPack(arr);
     }
 }
 //-----------------------------------------------------------------------
@@ -447,7 +569,7 @@ void MainWindow::slot_Release()
                              "Info",
                              "\nCoral Plus server\nVersion " + ver
                              + "\nBind tpc port " + QString::number(bind_port, 10)
-                             + "\nSerial port '" + serial_port
+                             + "\nSerial port '" + serial_port + " " + QString::number(serial_speed, 10) + " 8N1"
                              + "'\nBuild #" + BUILD
                              + "\nQt framework version " + QT_VERSION_STR);
 }
@@ -468,7 +590,7 @@ void MainWindow::slotComCli()
     temp.append("\n");
     QMessageBox::information(this, "Info", "\n\nBind tcp port : " + QString::number(bind_port, 10)
                              + "\n\nData Traffic serial port : '" + serial_port
-                             + "'\n\n" + temp);
+                             + " " + QString::number(serial_speed, 10) + " 8N1'\n\n" + temp);
 }
 //-----------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------

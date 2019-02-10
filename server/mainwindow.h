@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <cstdlib>
+#include <stdlib.h>
 
 #include <QMainWindow>
 #include <QDateTime>
@@ -26,6 +27,8 @@
 
 #define MAX_CLIENTS 2
 #define DEF_PORT_NUMBER 6543
+#define DEF_SPEED 9600
+#define DEF_TIMEOUT 1000
 
 #ifdef WIN32
     const QString def_serial_port = "COM1";
@@ -47,6 +50,11 @@ extern bool demos;
 extern const QString DemoFileName;
 extern const QString LogFileName;
 extern const QString ipFileName;
+extern uint16_t bPort;
+extern QString sPort;
+extern int sSpeed;
+
+extern void parse_param_start(char *param);
 
 //-----------------------------------------------------------------------------------
 namespace Ui {
@@ -65,7 +73,7 @@ public:
             TheError(int);
     };
 
-    explicit MainWindow(QWidget *parent = nullptr, uint16_t bp = DEF_PORT_NUMBER, QString sp = def_serial_port);
+    explicit MainWindow(QWidget *parent = nullptr, uint16_t bp = DEF_PORT_NUMBER, QString sp = def_serial_port, int ss = DEF_SPEED);
     ~MainWindow();
 
     void cli_prn(s_cli *);
@@ -83,13 +91,17 @@ public slots:
     void newuser();
     void slotErrorClient(QAbstractSocket::SocketError SErr);
     void slotCliDone(QTcpSocket *, int);
-    void slotSendPack();
+    void slotSendPack(QByteArray &);
+    // serial slot
+    void sReadyRead();
+    void sError(QSerialPort::SerialPortError serialPortError);
+    void sTimeout();
 
 signals:
 
     void sigDemoGetData();
     void sigCliDone(QTcpSocket *, int);
-    void sigSendPack();
+    void sigSendPack(QByteArray &);
 
 
 private:
@@ -105,13 +117,14 @@ private:
     QByteArray buf;
     int max_period;
 
+    QTimer serial_timer;
     QString serial_port;
+    int serial_speed;
     uint16_t bind_port;
     int server_status;
     bool client;
     uint32_t total_pack, send_pack;
     QTcpServer *tcpServer;
-    //QMap <int, s_cli> SClients;
     QString CliUrl;
 
 };

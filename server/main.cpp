@@ -4,24 +4,17 @@
 int main(int argc, char *argv[])
 {
 int cerr = 0;
-uint16_t bind_prt = DEF_PORT_NUMBER;
 char stz[256] = {0};
-QString serial_prt;
 
     setlocale(LC_ALL,"UTF8");
 
-    if (argc > 1) {
-        if (strstr(argv[1], "demo")) demos = true;
-    }
-    if (argc > 2) bind_prt = (uint16_t)atoi(argv[2]);
-    if (argc > 3) {
-        serial_prt.clear();
-        serial_prt.append(argv[3]);
-    }
+    if (argc > 1) parse_param_start(argv[1]);
+    if (argc > 2) parse_param_start(argv[2]);
+    if (argc > 3) parse_param_start(argv[3]);
 
     try {
         QApplication a(argc, argv);
-        MainWindow wnd(nullptr, bind_prt, serial_prt);
+        MainWindow wnd(nullptr, bPort, sPort, sSpeed);
         wnd.show();
         a.exec();
     }
