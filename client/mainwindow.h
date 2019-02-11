@@ -32,7 +32,6 @@
 #include "calc.h"
 
 //--------------------------------------------------------------------------------
-
 typedef struct {
     QString port;
     uint8_t type;
@@ -46,6 +45,7 @@ typedef struct {
     QStringList trunks;
 } s_tkgp;
 
+#pragma pack(push,1)
 typedef struct {
     uint32_t port;
     uint8_t status;
@@ -56,7 +56,7 @@ typedef struct {
     uint32_t port2;
     uint8_t status;
 } s_conn;
-
+#pragma pack(pop)
 
 enum port_type {
     SLT_TYPE = 0,
@@ -106,6 +106,7 @@ public:
     uint8_t get_status();
     QString get_two();
     s_one get_all();
+    void set_two(QString);
 
 private:
 
@@ -142,7 +143,7 @@ public slots:
 
     void slot_Release();
     void slot_About();
-    void mouseMoveEvent(QMouseEvent *);
+//    void mouseMoveEvent(QMouseEvent *);
     void slot_page(int);
     void slotShowHideAdminMenu(bool);
     void slotAdminOn();

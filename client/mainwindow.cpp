@@ -14,14 +14,16 @@
 //const QString ver = "1.6 rc1";//05.02.2019 // use qmap class for adress of TheWin class object
 //const QString ver = "1.6 rc2";//05.02.2019 // minor changes
 //const QString ver = "1.7 rc1";//06.02.2019 // minor changes in reconnect to server
-const QString ver = "1.8";//06.02.2019 // working release
+//const QString ver = "1.8";//06.02.2019 // working release
+//const QString ver = "1.9";//11.02.2019 // edit packet's pareser
+const QString ver = "2.0";//11.02.2019 // major changes in packet's pareser !!!
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
 QString CfgFil = "coral.npl";
 QString TrkFil = "coral.trk";
 QString myPwd;
-const QString _myPwd = "zero";
+const QString _myPwd = "zero1960";
 const QString def_srv_adr = "127.0.0.1";
 const int def_srv_port = 6543;
 const int wTime = 10;
@@ -162,12 +164,9 @@ TheWin::~TheWin()
 void TheWin::_update(s_one *ops)
 {
     one = *ops;
-    this->obj->clear();
 
-    if (!one.two.length())
-        obj->setHtml(one.port + "<br>" + PortStatus[one.status]);
-    else
-        obj->setHtml(one.port + "<br>" + one.two);
+    this->obj->clear();
+    obj->setHtml(one.port + "<br>" + one.two);
 
     this->obj->setAlignment(Qt::AlignCenter);
 }
@@ -200,6 +199,11 @@ QString TheWin::get_two()
 s_one TheWin::get_all()
 {
     return one;
+}
+//--------------------------------------------------------------------------------
+void TheWin::set_two(QString num)
+{
+    one.two = num;
 }
 //--------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -263,6 +267,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     sbar = "Server : " + ServerIPAddress + " ConfigFile : " + CfgFil + " User : " + myPwd;
     statusBar()->showMessage(sbar);
     qApp->installEventFilter(this);
+
+//    this->setMouseTracking(true);
 
     time_start = QDateTime::currentDateTime().toTime_t();
 
@@ -473,7 +479,7 @@ quint8 eop = 0xee;//238;
         rxdata.clear();
         while (true) {
             rxdata += _pSocket->read(1);
-            if (rxdata.contains(eop)) break;
+            if (rxdata.contains(static_cast<char>(eop))) break;
         }
         emit sigPackParser(rxdata);
     }
@@ -505,9 +511,10 @@ char stx[64] = {0};
 char sport1[16] = {0};
 char sport2[16] = {0};
 s_one one, two;
-TheWin *pad1, *pad2;
+TheWin *pad1 = nullptr, *pad2 = nullptr;
+bool pa = false, pb = false;
 uint8_t byte = static_cast<uint8_t>(pk.at(0));
-QString txt = "";//, tp = "";
+QString txt = "";
 uint8_t istat;
 bool bad_port = false;
 int imax = AllBusyCount;
@@ -533,28 +540,42 @@ int imax = AllBusyCount;
                 dword = my_htonl(dword);
                 sprintf(sport1, "%X", dword);
             }
-            istat = stat->status & 3;
-            QString prt(sport1);
-            pad1 = map_adr.value(prt);
+            istat = stat->status & 3;//status
+            QString prt(sport1);     //port
+            pad1 = map_adr.value(prt);// get all data about port
             if (pad1) {
                 one = pad1->get_all();
                 if (prt == one.port) {
-                    one.two.clear();
+                    one.two = PortStatus[istat];
                     one.status = istat;
-                    pad1->_update(&one);
+                    pa = true;
                 }
             }
             sprintf(stx+strlen(stx), "%s %02X", sport1, stat->status);
             txt.append(stx); txt.append(" | " + pk.toHex().toUpper());
             if (!bad_port) {
-                if (istat == BUSY_STATUS) {
-                    AllBusyCount++;
-                    if (AllBusyCount > total_ports) AllBusyCount = total_ports;
-                    if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
-                } else if (istat == IDLE_STATUS) {
-                    if (AllBusyCount > 0) AllBusyCount--;
+                switch (istat) {
+                    case BUSY_STATUS :
+                        AllBusyCount++; if (AllBusyCount > total_ports) AllBusyCount = total_ports;
+                        if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
+                    break;
+                    case IDLE_STATUS:
+                        if (AllBusyCount > 0) AllBusyCount--;
+                        foreach (pad2, indexWin) {
+                            if (pad2) {
+                                if ((pad2->get_two() == prt) && (pad2->get_status() != IDLE_STATUS) && (pad2->get_type() != BAD_TYPE)) {
+                                    two = pad2->get_all();
+                                    two.two.clear();
+                                    pb = true;
+                                    break;
+                                }
+                            }
+                        }
+                    break;
                 }
             }
+            if (pa && pad1) pad1->_update(&one);
+            if (pb && pad2) pad2->_update(&two);
         }
         break;
         case 0x75:
@@ -587,7 +608,9 @@ int imax = AllBusyCount;
                 dword = my_htonl(dword);
                 sprintf(sport2, "%X", dword);
             }
-
+            //IDLE_STATUS - Outgoing internal call - status 0x00
+            //BUSY_STATUS - Incoming external call - status 0x01
+            //LOCK_STATUS - Outgoing external call - status 0x02
             QString pt1(sport1);
             QString pt2(sport2);
             pad1 = map_adr.value(pt1);
@@ -875,15 +898,20 @@ void MainWindow::slotShowHideAdminMenu(bool flag)
     ui->menuSpecialFeatures->setDisabled(flag);
 }
 //-----------------------------------------------------------------------
+/*
 void MainWindow::mouseMoveEvent(QMouseEvent *e)
 {
-QString st = "";
 
-    if(e->buttons() & Qt::RightButton) st.append("Right button pressed\n");
-    if(e->buttons() & Qt::LeftButton) st.append("Left button pressed\n");
-    if(e->buttons() & Qt::MiddleButton) st.append("Middle button pressed");
-    if (st.length() > 0) qDebug() << st;
+    //if(e->buttons() & Qt::RightButton) st.append("Right button pressed\n");
+    //if (e->buttons() & Qt::LeftButton)
+
+    QString st = "x=" + QString::number(e->x(), 10) + " y=" + QString::number(e->y(), 10);
+
+    //if(e->buttons() & Qt::MiddleButton) st.append("Middle button pressed");
+    //if (st.length() > 0)
+        qDebug() << st;
 }
+*/
 //-----------------------------------------------------------------------
 void MainWindow::slot_page(int cp)
 {
