@@ -91,7 +91,7 @@ public slots:
     void newuser();
     void slotErrorClient(QAbstractSocket::SocketError SErr);
     void slotCliDone(QTcpSocket *, int);
-    void slotSendPack(QByteArray &);
+    void slotSendPack();
     // serial slot
     void sReadyRead();
     void sError(QSerialPort::SerialPortError serialPortError);
@@ -101,7 +101,7 @@ signals:
 
     void sigDemoGetData();
     void sigCliDone(QTcpSocket *, int);
-    void sigSendPack(QByteArray &);
+    void sigSendPack();
 
 
 private:
@@ -126,6 +126,8 @@ private:
     uint32_t total_pack, send_pack;
     QTcpServer *tcpServer;
     QString CliUrl;
+
+    QQueue<QByteArray> ku;
 
 };
 

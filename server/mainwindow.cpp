@@ -5,7 +5,8 @@
 //const QString ver = "1.0 rc1";//07.02.2019
 //const QString ver = "1.1 rc1";//08.02.2019
 //const QString ver = "1.2";//08.02.2019
-const QString ver = "1.3";//10.02.2019
+//const QString ver = "1.3";//10.02.2019
+const QString ver = "1.4";//11.02.2019 - with queue for packets
 
 bool demos = false;
 
@@ -117,8 +118,8 @@ quint8 eop = 0xee;//238;
             dmpFile->open(QIODevice::ReadOnly);
         }
         buf += dmpFile->read(1);
-        if (buf.contains(eop)) break;
-                          else if (i > 22) break;
+        if ( buf.contains(static_cast<char>(eop))) break;
+                                              else if (i > 22) break;
     }
 
     return  buf.length();
@@ -177,6 +178,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     serial_speed = ss;
     serial_port = sp;
     bind_port = bp;
+    ku.clear();
 
     tcpServer = nullptr;
     server_status = 0;
@@ -248,7 +250,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
             sobj->setFlowControl(QSerialPort::NoFlowControl);
             sobj->setParity(QSerialPort::NoParity);
             sobj->setStopBits(QSerialPort::OneStop);
-            sobj->setReadBufferSize(18);
+            sobj->setReadBufferSize(18);//18
             sobj->open(QIODevice::ReadOnly);
             sobj->flush();
             sobj->clear(QSerialPort::Input);
@@ -256,6 +258,9 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
             QObject::connect(sobj, &QSerialPort::errorOccurred, this, &MainWindow::sError);
             QObject::connect(&serial_timer, &QTimer::timeout, this, &MainWindow::sTimeout);
             serial_timer.start(DEF_TIMEOUT);
+        } else {
+            MyError |= 0x10;//make serial object error
+            throw TheError(MyError);
         }
     }
 
@@ -278,7 +283,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->status->setText(temp);
     LogSave(__func__, temp, true);
 
-    connect(this, SIGNAL(sigSendPack(QByteArray &)), this, SLOT(slotSendPack(QByteArray &)));
+    connect(this, SIGNAL(sigSendPack()), this, SLOT(slotSendPack()));
 
     ui->cat->setText("Wait new packet ...");
 
@@ -316,17 +321,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MainWindow::sReadyRead()
 {
 int i = 0;
 bool yes = false;
 quint8 eop = 238;
-QByteArray arr;
 
     while (true) {
         i++;
         buf += sobj->read(1);
-        if (buf.contains(eop)) {
+        if ( buf.contains( static_cast<char>(eop) ) ) {
             yes = true;
             break;
         } else if (i > 11) break;
@@ -335,22 +340,21 @@ QByteArray arr;
     if (!serial_timer.isActive()) serial_timer.start(DEF_TIMEOUT);
 
     if (yes) {
-        arr = buf;
+        //
+        ku.enqueue(buf);
+        //
+        QString tmp = buf.toHex().toUpper();
         buf.clear();
-        QString tmp = arr.toHex().toUpper();
         total_pack++;
         ui->packet->setText(tmp);
         ui->cat->setText("Getting packet # " + QString::number(total_pack, 10) + " done");
-        emit sigSendPack(arr);
+        emit sigSendPack();
     }
 
 }
 //------------------------------------------------------------------------------
 void MainWindow::sTimeout()
 {
-    if (!buf.isEmpty()) {
-        LogSave(__func__, buf.toHex().toUpper(), true);
-    }
     if (!serial_timer.isActive()) serial_timer.start(DEF_TIMEOUT);
 }
 //------------------------------------------------------------------------------
@@ -378,10 +382,13 @@ QString tmp = "ip_adr:" + sc->ip_adr;
 
 }
 //------------------------------------------------------------------------------
-void MainWindow::slotSendPack(QByteArray &bf)
+void MainWindow::slotSendPack()
 {
 int i = 0;
 bool yes = false;
+QByteArray bf;
+
+    if (!ku.isEmpty()) bf = ku.dequeue(); else return;
 
     while (i < all_cli.length()) {
         cli = all_cli.at(i++);
@@ -392,20 +399,22 @@ bool yes = false;
     }
     if (yes) ui->cat->setText("Sending packet # " + QString::number(total_pack, 10) + " done");
 
-    //buf.clear();
 }
 //------------------------------------------------------------------------------
 void MainWindow::slotDemoGetData()
 {
     ui->cat->setText("Getting new packet ...");
     if (readserdmp()) {
-        QByteArray arr = buf;
-        QString tmp = arr.toHex().toUpper();
+        //
+        ku.enqueue(buf);
+        //
+        QString tmp = buf.toHex().toUpper();
+        buf.clear();
         total_pack++;
         ui->packet->setText(tmp);
 //        LogSave(__func__, "Packet : " + tmp, true);
         ui->cat->setText("Getting packet # " + QString::number(total_pack, 10) + " done");
-        emit sigSendPack(arr);
+        emit sigSendPack();
     }
 }
 //-----------------------------------------------------------------------
@@ -516,8 +525,6 @@ QString qs = "Socket ERROR (" + QString::number(static_cast<int>(SErr), 10) + ")
     emit sigCliDone(cliSocket, 0);
 }
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 QString MainWindow::sec_to_time(time_t &sec)
 {
 QString ret;
@@ -593,7 +600,4 @@ void MainWindow::slotComCli()
                              + " " + QString::number(serial_speed, 10) + " 8N1'\n\n" + temp);
 }
 //-----------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------
+

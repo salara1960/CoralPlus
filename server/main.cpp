@@ -18,7 +18,6 @@ char stz[256] = {0};
         wnd.show();
         a.exec();
     }
-    //create server object error - no memory
     catch (MainWindow::TheError(er)) {
         memset(stz, 0, sizeof(stz));
         cerr = er.code;
@@ -26,9 +25,8 @@ char stz[256] = {0};
             if (cerr & 1) sprintf(stz, "Error in get client's ip_adr (%d)\n", cerr);//ip_adr read from 'coral.ip' error
             if (cerr & 2) sprintf(stz, "Error in startTimer function (%d)\n", cerr);
             if (cerr & 4) sprintf(stz, "Error create server object (%d)\n", cerr);
-            if (cerr & 8) sprintf(stz, "//Error starting tcp server (%d)\n", cerr);
-            //if (cerr & 0x10) sprintf(stz, "Error pointer (%d)\n", cerr);
-            //if (cerr & 0x20) sprintf(stz, "Error create socket - no memory (%d)\n", cerr);
+            if (cerr & 8) sprintf(stz, "Error starting tcp server (%d)\n", cerr);
+            if (cerr & 0x10) sprintf(stz, "Error make serial_port object(%d)\n", cerr);
         }
         if (!strlen(stz)) sprintf(stz, "Unknown Error (%d)\n", cerr);
         perror(stz);
