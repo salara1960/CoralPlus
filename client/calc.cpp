@@ -78,7 +78,7 @@ void CalcWin::on_actionCalc_clicked()
 {
     QString displayLabel = uic->displayPanel->text();
 
-    if (!hasStoredNumber || displayLabel.length() < 1 || operatorClicked) return;
+    if (!hasStoredNumber || (displayLabel.length() < 1) || operatorClicked) return;
 
     calculate_result();
 
@@ -100,8 +100,7 @@ void CalcWin::on_comma_clicked()
 void CalcWin::on_actionClear_clicked()
 {
     uic->displayPanel->clear();
-    operatorClicked = false;
-    hasStoredNumber = false;
+    operatorClicked = hasStoredNumber = false;
 }
 //---------------------------------------------------------------
 void CalcWin::on_actionPercent_clicked()
@@ -138,9 +137,9 @@ void CalcWin::calculate_result()
      uic->displayPanel->setText(displayLabel);
 }
 //---------------------------------------------------------------
-void CalcWin::keyPressEvent(QKeyEvent *e) {
-    switch (e->key())
-    {
+void CalcWin::keyPressEvent(QKeyEvent *e)
+{
+    switch (e->key()) {
         case Qt::Key_1:
             numberGroup_clicked(uic->num1);
             break;

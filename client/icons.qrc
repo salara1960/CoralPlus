@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>png/main.png</file>
+        <file>png/cli_main.png</file>
         <file>png/info.png</file>
         <file>png/help.png</file>
         <file>png/enable.png</file>

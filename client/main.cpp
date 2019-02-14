@@ -20,7 +20,7 @@ char stz[256] = {0};
     catch (MainWindow::TheError(er)) {
         memset(stz, 0, sizeof(stz));
         cerr = er.code;
-        if ((cerr>0) && (cerr<=0x20)) {
+        if ((cerr > 0) && (cerr <= 0x20)) {
             if (cerr & 1) sprintf(stz, "Error in calloc function (%d)\n", cerr);
             if (cerr & 2) sprintf(stz, "Error in startTimer function (%d)\n", cerr);
             if (cerr & 4) sprintf(stz, "Error in 'Qstring::toInt' function (%d)\n", cerr);

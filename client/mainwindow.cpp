@@ -16,7 +16,9 @@
 //const QString ver = "1.7 rc1";//06.02.2019 // minor changes in reconnect to server
 //const QString ver = "1.8";//06.02.2019 // working release
 //const QString ver = "1.9";//11.02.2019 // edit packet's pareser
-const QString ver = "2.0";//11.02.2019 // major changes in packet's pareser !!!
+//const QString ver = "2.0";//11.02.2019 // major changes in packet's pareser !!!
+//const QString ver = "2.1";//13.02.2019 // minor changes in mouseEvent - add mousePressEvent
+const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
@@ -154,6 +156,7 @@ TheWin::TheWin(QWidget *parent, QRect *rc,  s_one *ops)
         obj->setAlignment(Qt::AlignCenter);
         if (one.type == BAD_TYPE) obj->hide();
     }
+
 }
 //--------------------------------------------------------------------------------
 TheWin::~TheWin()
@@ -165,10 +168,10 @@ void TheWin::_update(s_one *ops)
 {
     one = *ops;
 
-    this->obj->clear();
+    obj->clear();
     obj->setHtml(one.port + "<br>" + one.two);
 
-    this->obj->setAlignment(Qt::AlignCenter);
+    obj->setAlignment(Qt::AlignCenter);
 }
 //--------------------------------------------------------------------------------
 void TheWin::show_win(bool f)
@@ -201,16 +204,18 @@ s_one TheWin::get_all()
     return one;
 }
 //--------------------------------------------------------------------------------
-void TheWin::set_two(QString num)
+void TheWin::_prn(QString s)
 {
-    one.two = num;
+    obj->clear();
+    obj->setHtml(s);
+    obj->setAlignment(Qt::AlignCenter);
 }
 //--------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    this->setWindowIcon(QIcon("png/main.png"));
+    this->setWindowIcon(QIcon("png/cli_main.png"));
     this->setFixedSize(this->size());
     this->setWindowTitle("CoralPlus client ver." + ver);
 
@@ -218,7 +223,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ico_green = new QIcon("png/GreenTag.png");
 
     QFont font = this->font();
-#ifdef WIN32
+#ifdef SET_WIN32
     //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
     font.setPixelSize(14);//15
     ui->l_busy->setFont(font);
@@ -266,9 +271,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     if (myPwd == _myPwd) AdminFlag = true;
     sbar = "Server : " + ServerIPAddress + " ConfigFile : " + CfgFil + " User : " + myPwd;
     statusBar()->showMessage(sbar);
+
     qApp->installEventFilter(this);
 
-//    this->setMouseTracking(true);
 
     time_start = QDateTime::currentDateTime().toTime_t();
 
@@ -319,6 +324,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QObject::connect(this, &MainWindow::sigNewCon, this, &MainWindow::slotNewCon);
     QObject::connect(this, &MainWindow::sigPackParser, this, &MainWindow::slotPackParser);
+
 
     LogSave(nullptr, "Start program", true);
 
@@ -428,10 +434,7 @@ void MainWindow::disconnectTcp()
     if (conTrue) clearAllPort();
     conTrue = false;
 
-    if (_pSocket) {
-        //_pSocket->abort();
-        _pSocket->close();
-    }
+    if (_pSocket) _pSocket->close();
 
     sbar = "Disconnect from server " + ServerIPAddress + ". Try #"+QString::number(try_cnt, 10)+" connect after " + QString::number(wTime, 10) + " sec";
     statusBar()->showMessage(sbar);
@@ -488,6 +491,8 @@ quint8 eop = 0xee;//238;
 uint32_t my_htonl(uint32_t in)
 {
 uint32_t res = in;
+
+#ifdef SET_WIN32
 uint8_t *uk;
 uint8_t b1, b2;
 
@@ -497,7 +502,9 @@ uint8_t b1, b2;
     *uk = b2; *(uk+1) = b1;
     b1 = *(uk+2); b2 = *(uk+3);
     *(uk+2) = b2; *(uk+3) = b1;
-
+#else
+    res = htonl(in);
+#endif
     return res;
 }
 //-----------------------------------------------------------------------
@@ -540,9 +547,9 @@ int imax = AllBusyCount;
                 dword = my_htonl(dword);
                 sprintf(sport1, "%X", dword);
             }
-            istat = stat->status & 3;//status
-            QString prt(sport1);     //port
-            pad1 = map_adr.value(prt);// get all data about port
+            istat = stat->status & 3;  //status
+            QString prt(sport1);       //port
+            pad1 = map_adr.value(prt); // get all data about port
             if (pad1) {
                 one = pad1->get_all();
                 if (prt == one.port) {
@@ -658,7 +665,7 @@ char sstart[MAX_DIGIT_PORT<<1] = {0};
 char sstop[MAX_DIGIT_PORT<<1] = {0};
 char *uks = nullptr, *uk = nullptr;
 const char sep = '-';
-s_one def_one = {"", BAD_TYPE, NONE_STATUS, "", {}};
+s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}};
 s_one one;
 qint64 dl;
 s_tkgp def_tkgp = {"", {}};
@@ -816,6 +823,7 @@ void MainWindow::InitScreen()
     int sha = 0;
     int clin = 0;
     QString stemp;
+    s_coord coord;
     for (int i = 0; i < total_ports; i++) {
         s_port = alls->at(i);
 
@@ -828,6 +836,9 @@ void MainWindow::InitScreen()
         if (adr) {
             map_adr.insert(s_port.port, adr);
             indexWin.push_back(adr);
+            coord.x = x + 9;      //from ui
+            coord.y = y + 51 + 27;//from ui
+            pointWin.push_back(coord);
             if ((i >= PortPerPage) && (adr->get_type() != BAD_TYPE)) adr->show_win(false);
         } else {
             stemp = "Error make port_object : port=" + s_port.port + " type=" + Name2PortType[s_port.type] + " status=" + Name2PortStatus[s_port.status];
@@ -897,21 +908,6 @@ void MainWindow::slotShowHideAdminMenu(bool flag)
     ui->menuCallForward->setDisabled(flag);
     ui->menuSpecialFeatures->setDisabled(flag);
 }
-//-----------------------------------------------------------------------
-/*
-void MainWindow::mouseMoveEvent(QMouseEvent *e)
-{
-
-    //if(e->buttons() & Qt::RightButton) st.append("Right button pressed\n");
-    //if (e->buttons() & Qt::LeftButton)
-
-    QString st = "x=" + QString::number(e->x(), 10) + " y=" + QString::number(e->y(), 10);
-
-    //if(e->buttons() & Qt::MiddleButton) st.append("Middle button pressed");
-    //if (st.length() > 0)
-        qDebug() << st;
-}
-*/
 //-----------------------------------------------------------------------
 void MainWindow::slot_page(int cp)
 {
@@ -988,13 +984,6 @@ QByteArray mas;
     }
 }
 //-----------------------------------------------------------------------
-bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
-{
-    if (!obj) return false;
-    if (evt->type() == QEvent::StatusTip) return true;
-                                     else return false;
-}
-//-----------------------------------------------------------------------
 void MainWindow::timerEvent(QTimerEvent *event)
 {
 
@@ -1028,6 +1017,51 @@ void MainWindow::slot_About()
     QMessageBox::information(this, "Help", "\nSorry, no help present. (:\n");
 }
 //-----------------------------------------------------------------------
+void MainWindow::mousePressEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::RightButton) {
+        e->accept();
+        TheWin *adr = cCoord(e->pos().x(), e->pos().y());
+        if (adr) {
+            if (adr->get_type() != BAD_TYPE)
+                QMessageBox::information(nullptr,
+                                         Name2PortType[adr->get_type()],
+                                         " Port " + adr->get_port() + " Status '" + Name2PortStatus[adr->get_status()] + "' ");
+        }
+    }
+}
+//-----------------------------------------------------------------------
+bool MainWindow::eventFilter(QObject *obj, QEvent *evt)
+{
+    if (!obj) return false;
+
+    if (evt->type() == QEvent::StatusTip)
+        return true;
+    else
+        return false;
+}
+//-----------------------------------------------------------------------
+TheWin *MainWindow::cCoord(int x, int y)
+{
+TheWin *ret = nullptr;
+int start_ind = _page * PortPerPage;
+int stop_ind = start_ind + PortPerPage;
+
+    if (start_ind < total_ports) {
+        for (int i = start_ind; i < stop_ind; i++) {
+            if (i < total_ports) {
+                if ((x > pointWin[i].x) && (x < pointWin[i].x + wPort)) {
+                    if ((y > pointWin[i].y) && (y < pointWin[i].y + hPort)) {
+                        ret = indexWin[i];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return ret;
+}
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------

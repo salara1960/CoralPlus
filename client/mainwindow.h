@@ -58,6 +58,11 @@ typedef struct {
 } s_conn;
 #pragma pack(pop)
 
+typedef struct {
+    int x;
+    int y;
+} s_coord;
+
 enum port_type {
     SLT_TYPE = 0,
     KEY_TYPE = 1,
@@ -90,7 +95,7 @@ namespace Ui {
     class MainWindow;
 }
 //--------------------------------------------------------------------------------
-class TheWin : public QTextEdit
+class TheWin : public QWidget//QTextEdit
 {
     Q_OBJECT
 
@@ -106,7 +111,7 @@ public:
     uint8_t get_status();
     QString get_two();
     s_one get_all();
-    void set_two(QString);
+    void _prn(QString);
 
 private:
 
@@ -114,7 +119,7 @@ private:
     QRect rect;
     s_one one;
 };
-//--------------------------------------------------------------------------------
+//********************************************************************************
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -139,11 +144,14 @@ public:
     bool GetConfigFile();
     QString sec_to_time(time_t &);
 
+protected:
+    virtual void mousePressEvent(QMouseEvent *);
+
 public slots:
 
     void slot_Release();
     void slot_About();
-//    void mouseMoveEvent(QMouseEvent *);
+
     void slot_page(int);
     void slotShowHideAdminMenu(bool);
     void slotAdminOn();
@@ -158,6 +166,7 @@ public slots:
     void slotNewCon();
     void slotPackParser(QByteArray &);
     void clearAllPort();
+    TheWin *cCoord(int, int);
 
 signals:
     void sigShowHideAdminMenu(bool);
@@ -180,6 +189,7 @@ private:
     int total_ports, AllBusyCount, MaxBusyCount;
     QMap<QString, TheWin *> map_adr;
     QVector<TheWin *> indexWin;
+    QVector<s_coord> pointWin;
     bool conTrue, AdminFlag;
 
     QIcon *ico_black, *ico_green;
