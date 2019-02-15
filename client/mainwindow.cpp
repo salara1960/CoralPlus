@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_itInfo.h"
 
 //-----------------------------------------------------------------------
 
@@ -18,7 +19,8 @@
 //const QString ver = "1.9";//11.02.2019 // edit packet's pareser
 //const QString ver = "2.0";//11.02.2019 // major changes in packet's pareser !!!
 //const QString ver = "2.1";//13.02.2019 // minor changes in mouseEvent - add mousePressEvent
-const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
+//const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
+const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
@@ -36,10 +38,12 @@ const uint8_t KolType = 7;
 const static char *NamePortType[] = {"SLT:", "KEY:", "TRK:", "GRP:", "MOD:", "CON:", "BAD:"};
 const QString Name2PortType[] = {"SltSet", "KeySet", "Trunk", "TkGp", "Modem", "Conf", "Bad"};
 
-//const uint8_t KolStatus = 4;
-const QString PortStatus[] = {"", "Busy", "Lock", ""};
-const QString Name2PortStatus[] = {"Idle", "Busy", "Lock", ""};
-
+//const uint8_t KolStatus = 6;
+const QString PortStatus[] = {"", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
+const QString Name2PortStatus[] = {"Idle", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
+//IDLE_STATUS - Outgoing internal call - status 0x00
+//BUSY_STATUS - Incoming external call - status 0x01
+//LOCK_STATUS - Outgoing external call - status 0x02
 const int wPort = 74;
 const int hPort = 46;
 const int Lis = 0;//1;
@@ -47,7 +51,7 @@ const int PortsPerLine = 12;
 const int LinePerPage = 12;
 const int PortPerPage = PortsPerLine * LinePerPage; //144
 
-const s_one def_port = {"2000", SLT_TYPE, IDLE_STATUS, "", {}};
+const s_one def_port = {"2000", SLT_TYPE, IDLE_STATUS, "", {}, false};
 
 const QString LogFileName = "cli_logs.txt";
 //-----------------------------------------------------------------------
@@ -172,6 +176,8 @@ void TheWin::_update(s_one *ops)
     obj->setHtml(one.port + "<br>" + one.two);
 
     obj->setAlignment(Qt::AlignCenter);
+
+    if (one.info) emit sigEvent();
 }
 //--------------------------------------------------------------------------------
 void TheWin::show_win(bool f)
@@ -204,13 +210,106 @@ s_one TheWin::get_all()
     return one;
 }
 //--------------------------------------------------------------------------------
+/*
 void TheWin::_prn(QString s)
 {
     obj->clear();
     obj->setHtml(s);
     obj->setAlignment(Qt::AlignCenter);
 }
+*/
 //--------------------------------------------------------------------------------
+void TheWin::set_info(bool flag)
+{
+    one.info = flag;
+}
+//--------------------------------------------------------------------------------
+bool TheWin::get_info()
+{
+    return one.info;
+}
+//**************************************************************************************
+itInfo::itInfo(QWidget *parent, TheWin *uk) : QDialog(parent), uid(new Ui::itInfo)
+{
+    if (!uk) { delete this; return; }
+
+    if (uk->get_info()) { delete this; return; }
+
+    adr = uk;
+    adr->set_info(true);
+
+    uid->setupUi(this);
+
+    this->setWindowIcon(QIcon("png/info.png"));
+    this->setFixedSize(this->size());
+
+    ss_def = uid->txt->styleSheet();
+    ss_blue    = "background-color: rgb(224, 224, 224);\ncolor: rgb(0, 0, 255);\n";
+    ss_red     = "background-color: rgb(224, 224, 224);\ncolor: rgb(255, 0, 0);\n";
+    ss_green   = "background-color: rgb(224, 224, 224);\ncolor: rgb(0, 255, 0);\n";
+    ss_yellow  = "background-color: rgb(224, 224, 224);\ncolor: rgb(255, 255, 0);\n";
+    ss_cyan    = "background-color: rgb(224, 224, 224);\ncolor: rgb(0, 255, 255);\n";
+    ss_magenta = "background-color: rgb(224, 224, 224);\ncolor: rgb(255, 0, 255);\n";
+    ss_white   = "background-color: rgb(224, 224, 224);\ncolor: rgb(255, 255, 255);\n";
+
+    title = Name2PortType[adr->get_type()];
+    this->setWindowTitle(title);
+
+    this->reRead();
+
+    QObject::connect(adr, &TheWin::sigEvent, this, &itInfo::reRead);
+
+    this->show();
+}
+//-----------------------------------------------
+itInfo::~itInfo()
+{
+    adr->set_info(false);
+    adr->disconnect();
+    delete uid;
+}
+//-----------------------------------------------
+void itInfo::reRead()
+{
+    one = adr->get_all();
+    msg.clear();
+    ss = ss_def;
+    switch (one.status) {
+        case IDLE_STATUS :
+            msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
+        break;
+        case BUSY_STATUS :
+            if ((one.two.at(0) <= '9') && (one.two.at(0) >= '0')) {
+                msg.append(" Port " + one.port + " connected with " + one.two);
+                //ss = ss_blue;
+            } else {
+                msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
+                //ss = ss_green;
+            }
+            ss = ss_green;
+        break;
+        case LOCK_STATUS :
+            msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
+            ss = ss_red;
+        break;
+        case OINT_STATUS :
+            msg.append("Outgoing int. call :"  + one.port + " - " + one.two);
+            ss = ss_blue;//white;//yellow;
+        break;
+        case IEXT_STATUS :
+            msg.append("Incomming ext. call : " + one.port + " - " + one.two);
+            ss = ss_magenta;
+        break;
+        case OEXT_STATUS :
+            msg.append("Outgoing ext. call : " + one.port + " - " + one.two);
+            ss = ss_cyan;
+        break;
+            default: msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
+    }
+    uid->txt->setStyleSheet(ss);
+    uid->txt->setText(msg);
+}
+//**************************************************************************************
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -493,8 +592,8 @@ uint32_t my_htonl(uint32_t in)
 uint32_t res = in;
 
 #ifdef SET_WIN32
-uint8_t *uk;
-uint8_t b1, b2;
+    uint8_t *uk;
+    uint8_t b1, b2;
 
     res = (res >> 16) | (res << 16);
     uk = (uint8_t *)&res;
@@ -521,7 +620,7 @@ s_one one, two;
 TheWin *pad1 = nullptr, *pad2 = nullptr;
 bool pa = false, pb = false;
 uint8_t byte = static_cast<uint8_t>(pk.at(0));
-QString txt = "";
+QString txt = "";//, tp = "";
 uint8_t istat;
 bool bad_port = false;
 int imax = AllBusyCount;
@@ -553,6 +652,7 @@ int imax = AllBusyCount;
             if (pad1) {
                 one = pad1->get_all();
                 if (prt == one.port) {
+                    //tp = one.two;
                     one.two = PortStatus[istat];
                     one.status = istat;
                     pa = true;
@@ -574,7 +674,7 @@ int imax = AllBusyCount;
                                     two = pad2->get_all();
                                     two.two.clear();
                                     pb = true;
-                                    break;
+                                    //break;
                                 }
                             }
                         }
@@ -615,9 +715,9 @@ int imax = AllBusyCount;
                 dword = my_htonl(dword);
                 sprintf(sport2, "%X", dword);
             }
-            //IDLE_STATUS - Outgoing internal call - status 0x00
-            //BUSY_STATUS - Incoming external call - status 0x01
-            //LOCK_STATUS - Outgoing external call - status 0x02
+            //IDLE_STATUS - Outgoing internal call - status 0x00 - 3 - OINT_STATUS
+            //BUSY_STATUS - Incoming external call - status 0x01 - 4 - IEXT_STATUS
+            //LOCK_STATUS - Outgoing external call - status 0x02 - 5 - OEXT_STATUS
             QString pt1(sport1);
             QString pt2(sport2);
             pad1 = map_adr.value(pt1);
@@ -627,11 +727,11 @@ int imax = AllBusyCount;
                 two = pad2->get_all();
                 if (pt1 == one.port) {
                     one.two = pt2;
-                    one.status = conn->status & 3;
+                    one.status = (conn->status & 3) + 3;
                     pad1->_update(&one);
                     if (pt2 == two.port) {
                         two.two = pt1;
-                        two.status = conn->status & 3;
+                        two.status = (conn->status & 3) + 3;
                         pad2->_update(&two);
                     }
                 }
@@ -665,7 +765,7 @@ char sstart[MAX_DIGIT_PORT<<1] = {0};
 char sstop[MAX_DIGIT_PORT<<1] = {0};
 char *uks = nullptr, *uk = nullptr;
 const char sep = '-';
-s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}};
+s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}, false};
 s_one one;
 qint64 dl;
 s_tkgp def_tkgp = {"", {}};
@@ -1023,10 +1123,7 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
         e->accept();
         TheWin *adr = cCoord(e->pos().x(), e->pos().y());
         if (adr) {
-            if (adr->get_type() != BAD_TYPE)
-                QMessageBox::information(nullptr,
-                                         Name2PortType[adr->get_type()],
-                                         " Port " + adr->get_port() + " Status '" + Name2PortStatus[adr->get_status()] + "' ");
+            if (adr->get_type() != BAD_TYPE) Info = new itInfo(nullptr, adr);
         }
     }
 }

@@ -21,5 +21,6 @@
         <file>png/Red_act.png</file>
         <file>png/Yellow_act.png</file>
         <file>png/Disa.png</file>
+        <file>png/player_info.png</file>
     </qresource>
 </RCC>

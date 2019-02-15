@@ -38,6 +38,7 @@ typedef struct {
     uint8_t status;
     QString two;
     QStringList trunks;
+    bool info;
 } s_one;
 
 typedef struct {
@@ -76,9 +77,14 @@ enum port_status {
     IDLE_STATUS = 0,
     BUSY_STATUS,
     LOCK_STATUS,
+    OINT_STATUS = 3,
+    IEXT_STATUS,
+    OEXT_STATUS,
     NONE_STATUS
 };
-
+//IDLE_STATUS - Outgoing internal call - status 0x00
+//BUSY_STATUS - Incoming external call - status 0x01
+//LOCK_STATUS - Outgoing external call - status 0x02
 //--------------------------------------------------------------------------------
 
 extern QString ServerIPAddress;
@@ -93,6 +99,7 @@ extern void LogSave(const char *func, QString st, bool pr);
 //--------------------------------------------------------------------------------
 namespace Ui {
     class MainWindow;
+    class itInfo;
 }
 //--------------------------------------------------------------------------------
 class TheWin : public QWidget//QTextEdit
@@ -111,13 +118,40 @@ public:
     uint8_t get_status();
     QString get_two();
     s_one get_all();
-    void _prn(QString);
+//    void _prn(QString);
+    void set_info(bool);
+    bool get_info();
+
+signals:
+    void sigEvent();
 
 private:
 
     QTextEdit *obj;
     QRect rect;
     s_one one;
+};
+//********************************************************************************
+class itInfo : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit itInfo(QWidget *parent = nullptr, TheWin *uk = nullptr);
+    ~itInfo();
+
+public slots:
+    void reRead();
+
+//signals:
+//    void sigNewStatus();
+
+private:
+    TheWin *adr;
+    Ui::itInfo *uid;
+    QString title, msg;
+    s_one one;
+    QString ss, ss_def, ss_blue, ss_red, ss_green, ss_yellow, ss_cyan, ss_magenta, ss_white;
+
 };
 //********************************************************************************
 class MainWindow : public QMainWindow
@@ -200,6 +234,8 @@ private:
 
     QList<s_one> *alls = nullptr;
     QList<s_tkgp> *groups = nullptr;
+
+    itInfo *Info;
 
 };
 
