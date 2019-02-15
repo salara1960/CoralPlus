@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>png/main.png</file>
+        <file>png/srv_main.png</file>
         <file>png/Clock.png</file>
         <file>png/connect.png</file>
         <file>png/Comp.png</file>

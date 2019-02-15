@@ -24,14 +24,16 @@
 #include <QtNetwork/QAbstractSocket>
 
 
+#undef SET_WIN32
+
 
 #define MAX_CLIENTS 2
 #define DEF_PORT_NUMBER 6543
 #define DEF_SPEED 9600
 #define DEF_TIMEOUT 1000
 
-#ifdef WIN32
-    const QString def_serial_port = "COM1";
+#ifdef SET_WIN32
+    const QString def_serial_port = "COM3";
 #else
     const QString def_serial_port = "/dev/ttyUSB0";
 #endif

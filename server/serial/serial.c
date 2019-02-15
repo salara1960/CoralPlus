@@ -25,6 +25,9 @@
 //-----------------------------------------------------------------------
 #define SPEED B9600
 
+//#define get_timer_sec(tm) (time(NULL) + tm)
+//#define check_delay_sec(tm) (time(NULL) >= tm ? 1 : 0)
+
 int src = -1;
 uint8_t buf[256] = {0};
 char ts[128] = {0};
@@ -89,7 +92,7 @@ uint32_t total_pack = 0;
 int rxlen = 0;
 char dev_name[256] = {0};
 char par[256] = {0};
-uint32_t maxp = 2000000;
+uint32_t maxp = 1500000;
 uint32_t spd = SPEED, ispd = 0;
 
     if (argc < 2) {

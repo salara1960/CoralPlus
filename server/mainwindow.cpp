@@ -6,7 +6,8 @@
 //const QString ver = "1.1 rc1";//08.02.2019
 //const QString ver = "1.2";//08.02.2019
 //const QString ver = "1.3";//10.02.2019
-const QString ver = "1.4";//11.02.2019 - with queue for packets
+//const QString ver = "1.4";//11.02.2019 - with queue for packets
+const QString ver = "1.5";//12.02.2019 - minor changes in GUI
 
 bool demos = false;
 
@@ -166,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
 
     startTime = time(nullptr);
 
-    this->setWindowIcon(QIcon("png/main.png"));
+    this->setWindowIcon(QIcon("png/srv_main.png"));
     this->setFixedSize(this->size());
     if (demos)
         this->setWindowTitle("CoralPlus server ver." + ver + " | demo mode");
@@ -174,6 +175,32 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
         this->setWindowTitle("CoralPlus server ver." + ver);
 
     ui->cli1->hide(); ui->cli2->hide();
+
+/**/
+#ifndef SET_WIN32
+    QFont font = this->font();
+
+    font.setPixelSize(14);
+    this->setFont(font);
+    ui->ip1->setFont(font); ui->ip1->setHtml("Client 1"); ui->ip1->setAlignment(Qt::AlignCenter);
+    ui->ip2->setFont(font); ui->ip2->setHtml("Client 2"); ui->ip2->setAlignment(Qt::AlignCenter);
+    ui->cat->setFont(font);
+
+    //font.setPixelSize(14);
+    ui->date->setFont(font);// ui->date->setAlignment(Qt::AlignRight);
+
+    font.setPixelSize(14);
+    ui->packet->setFont(font); ui->packet->setHtml("HEX");
+    ui->status->setFont(font);
+    ui->menuBar->setFont(font);
+    ui->menuHelp->setFont(font);
+    ui->menuService->setFont(font);
+    ui->actionCOM_and_Client->setFont(font);
+    ui->actionReread_config->setFont(font);
+    ui->actionAbout->setFont(font);
+    ui->actionRelease->setFont(font);
+#endif
+/**/
 
     serial_speed = ss;
     serial_port = sp;
@@ -255,7 +282,11 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
             sobj->flush();
             sobj->clear(QSerialPort::Input);
             QObject::connect(sobj, &QSerialPort::readyRead, this, &MainWindow::sReadyRead);
+#ifdef SET_WIN32
+            connect(sobj, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(sError(QSerialPort::SerialPortError)));
+#else
             QObject::connect(sobj, &QSerialPort::errorOccurred, this, &MainWindow::sError);
+#endif
             QObject::connect(&serial_timer, &QTimer::timeout, this, &MainWindow::sTimeout);
             serial_timer.start(DEF_TIMEOUT);
         } else {
@@ -565,7 +596,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
                 tim->tm_mday, tim->tm_mon + 1, tim->tm_year + 1900 - 2000,
                 tim->tm_hour, tim->tm_min, tim->tm_sec);
         ttm -= startTime;
-        ui->date->setText(stk + sec_to_time(ttm));
+        ui->date->setHtml(stk + sec_to_time(ttm));
         ui->date->setAlignment(Qt::AlignCenter);
     }
 }
