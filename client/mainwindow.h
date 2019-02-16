@@ -102,7 +102,7 @@ namespace Ui {
     class itInfo;
 }
 //--------------------------------------------------------------------------------
-class TheWin : public QWidget//QTextEdit
+class TheWin : public QWidget
 {
     Q_OBJECT
 
@@ -118,7 +118,6 @@ public:
     uint8_t get_status();
     QString get_two();
     s_one get_all();
-//    void _prn(QString);
     void set_info(bool);
     bool get_info();
 
@@ -141,9 +140,6 @@ public:
 
 public slots:
     void reRead();
-
-//signals:
-//    void sigNewStatus();
 
 private:
     TheWin *adr;
@@ -236,6 +232,7 @@ private:
     QList<s_tkgp> *groups = nullptr;
 
     itInfo *Info;
+    int MaxPages;
 
 };
 

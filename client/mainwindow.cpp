@@ -20,7 +20,8 @@
 //const QString ver = "2.0";//11.02.2019 // major changes in packet's pareser !!!
 //const QString ver = "2.1";//13.02.2019 // minor changes in mouseEvent - add mousePressEvent
 //const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
-const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
+//const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
+const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
@@ -210,15 +211,6 @@ s_one TheWin::get_all()
     return one;
 }
 //--------------------------------------------------------------------------------
-/*
-void TheWin::_prn(QString s)
-{
-    obj->clear();
-    obj->setHtml(s);
-    obj->setAlignment(Qt::AlignCenter);
-}
-*/
-//--------------------------------------------------------------------------------
 void TheWin::set_info(bool flag)
 {
     one.info = flag;
@@ -231,16 +223,21 @@ bool TheWin::get_info()
 //**************************************************************************************
 itInfo::itInfo(QWidget *parent, TheWin *uk) : QDialog(parent), uid(new Ui::itInfo)
 {
-    if (!uk) { delete this; return; }
-
-    if (uk->get_info()) { delete this; return; }
-
+    if (!uk) return;
     adr = uk;
+    if (adr->get_info()) { delete this; return; }
     adr->set_info(true);
 
     uid->setupUi(this);
 
-    this->setWindowIcon(QIcon("png/info.png"));
+#ifdef SET_WIN32
+    QFont font = this->font();
+    font.setPixelSize(14);
+    this->setFont(font);
+    uid->txt->setFont(font);
+#endif
+
+    //this->setWindowIcon(QIcon("png/info.png"));
     this->setFixedSize(this->size());
 
     ss_def = uid->txt->styleSheet();
@@ -264,9 +261,8 @@ itInfo::itInfo(QWidget *parent, TheWin *uk) : QDialog(parent), uid(new Ui::itInf
 //-----------------------------------------------
 itInfo::~itInfo()
 {
-    adr->set_info(false);
-    adr->disconnect();
-    delete uid;
+    if (adr) adr->set_info(false);
+    if (uid) delete uid;
 }
 //-----------------------------------------------
 void itInfo::reRead()
@@ -336,20 +332,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->menu_3->setFont(font);
     ui->menu_4->setFont(font);
 #else
-    /*
+    /**/
     //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
-    font.setPixelSize(16);//15
+    font.setPixelSize(15);//15
     ui->l_busy->setFont(font);
     ui->l_all_ports->setFont(font);
     ui->l_date_time->setFont(font);
     ui->l_data->setFont(font);
     //font.setPixelSize(16);//18
-    //ui->menu->setFont(font);
-    //ui->menuBar->setFont(font);
-    //ui->menu_2->setFont(font);
-    //ui->menu_3->setFont(font);
-    //ui->menu_4->setFont(font);
-    */
+    ui->menu->setFont(font);
+    ui->menuBar->setFont(font);
+    ui->menu_2->setFont(font);
+    ui->menu_3->setFont(font);
+    ui->menu_4->setFont(font);
+    font.setPixelSize(14);
+    ui->win_area->setFont(font);
+    this->setFont(font);
+    /**/
 #endif
 
     ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
@@ -365,6 +364,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     max_bad_len = 4;
     indexWin.clear();
     AllBusyCount = MaxBusyCount = 0;
+    MaxPages = ui->win_area->count();
 
     SplitAdrPort(&ServerIPAddress);
     if (myPwd == _myPwd) AdminFlag = true;
@@ -910,12 +910,6 @@ void MainWindow::InitScreen()
     int y = rect.y();
     if (ui->win_area->tabPosition() == QTabWidget::North) y += 27;
 
-    for (int i = 0; i < ui->win_area->count(); i++) {
-        if (i == _page) ui->win_area->setTabIcon(i, *ico_green);
-                   else ui->win_area->setTabIcon(i, *ico_black);
-    }
-    ui->win_area->setCurrentIndex(_page);
-
     int w = left_border;
     int h = top_border;
     int dx = 0;
@@ -963,6 +957,21 @@ void MainWindow::InitScreen()
                 if (ui->win_area->tabPosition() == QTabWidget::North) y += 27;
         }
     }
+
+    if (total_ports <= PortPerPage) MaxPages = 1;
+    else {
+        MaxPages = total_ports / PortPerPage;
+        if (total_ports % PortPerPage) MaxPages++;
+    }
+    if (ui->win_area->count() > MaxPages) {
+        for (int i = ui->win_area->count(); i > 1; i--)
+            if (i >= MaxPages) ui->win_area->removeTab(i);
+    }
+    for (int i = 0; i < MaxPages; i++) {
+        if (i == _page) ui->win_area->setTabIcon(i, *ico_green);
+                   else ui->win_area->setTabIcon(i, *ico_black);
+    }
+
     ui->win_area->setCurrentIndex(_page);
 
 }
@@ -1021,7 +1030,7 @@ TheWin *pad = nullptr;
 
     _page = cp;
 
-    for (i = 0; i < ui->win_area->count(); i++) {
+    for (i = 0; i < MaxPages; i++) {
         if (i == _page) ui->win_area->setTabIcon(i, *ico_green);
                    else ui->win_area->setTabIcon(i, *ico_black);
     }
@@ -1123,7 +1132,7 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
         e->accept();
         TheWin *adr = cCoord(e->pos().x(), e->pos().y());
         if (adr) {
-            if (adr->get_type() != BAD_TYPE) Info = new itInfo(nullptr, adr);
+            if (adr->get_type() != BAD_TYPE) Info = new itInfo(this, adr);
         }
     }
 }

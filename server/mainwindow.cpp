@@ -174,19 +174,17 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     else
         this->setWindowTitle("CoralPlus server ver." + ver);
 
-    ui->cli1->hide(); ui->cli2->hide();
+    ui->cli1->hide();
+    ui->cli2->hide();
 
-/**/
 #ifndef SET_WIN32
     QFont font = this->font();
-
     font.setPixelSize(14);
     this->setFont(font);
     ui->ip1->setFont(font); ui->ip1->setHtml("Client 1"); ui->ip1->setAlignment(Qt::AlignCenter);
     ui->ip2->setFont(font); ui->ip2->setHtml("Client 2"); ui->ip2->setAlignment(Qt::AlignCenter);
     ui->cat->setFont(font);
 
-    //font.setPixelSize(14);
     ui->date->setFont(font);// ui->date->setAlignment(Qt::AlignRight);
 
     font.setPixelSize(14);
@@ -200,7 +198,6 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->actionAbout->setFont(font);
     ui->actionRelease->setFont(font);
 #endif
-/**/
 
     serial_speed = ss;
     serial_port = sp;
@@ -352,7 +349,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void MainWindow::sReadyRead()
 {
 int i = 0;
@@ -397,8 +393,6 @@ void MainWindow::sError(QSerialPort::SerialPortError code_sError)
         LogSave(__func__, stx, true);
     }
 }
-
-//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MainWindow::cli_prn(s_cli *sc)
 {
