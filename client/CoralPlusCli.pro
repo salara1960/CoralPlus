@@ -43,7 +43,8 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     itDialog.ui \
-    calc.ui
+    calc.ui \
+    itInfo.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

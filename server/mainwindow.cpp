@@ -7,7 +7,8 @@
 //const QString ver = "1.2";//08.02.2019
 //const QString ver = "1.3";//10.02.2019
 //const QString ver = "1.4";//11.02.2019 - with queue for packets
-const QString ver = "1.5";//12.02.2019 - minor changes in GUI
+//const QString ver = "1.5";//12.02.2019 - minor changes in GUI
+const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
 
 bool demos = false;
 
@@ -17,9 +18,10 @@ const QString DemoFileName = "demo.dmp";
 const QString LogFileName = "srv_logs.txt";
 const QString ipFileName = "coral.ip";
 
-const s_cli def_cli = {"", false, nullptr, 0};
+const s_cli def_cli = {"", 0, false, nullptr};
 
 const static char *all_param_name[] = {"mode=", "bind=", "serial="};
+
 uint16_t bPort = DEF_PORT_NUMBER;
 QString sPort = def_serial_port;
 int sSpeed = DEF_SPEED;
@@ -170,9 +172,9 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     this->setWindowIcon(QIcon("png/srv_main.png"));
     this->setFixedSize(this->size());
     if (demos)
-        this->setWindowTitle("CoralPlus server ver." + ver + " | demo mode");
+        this->setWindowTitle("CoralPlus ssl server ver." + ver + " | demo mode");
     else
-        this->setWindowTitle("CoralPlus server ver." + ver);
+        this->setWindowTitle("CoralPlus ssl server ver." + ver);
 
     ui->cli1->hide();
     ui->cli2->hide();
@@ -204,7 +206,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     bind_port = bp;
     ku.clear();
 
-    tcpServer = nullptr;
+    sslServer = nullptr;
     server_status = 0;
 
     dmpFile = nullptr;
@@ -292,24 +294,35 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
         }
     }
 
-    tcpServer = new QTcpServer(this);
-    if (!tcpServer) {
+
+    sslServer = new SslServer();
+    if (!sslServer) {
         MyError |= 4;//create server object error - no memory
         throw TheError(MyError);
     }
+    sslServer->setSslLocalCertificate("key.pem");
+    sslServer->setSslPrivateKey("key.key");
+    sslServer->setSslProtocol(QSsl::TlsV1_2);
+
     temp = "TCP Server start, listen port " + QString::number(bind_port, 10);
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newuser()));
-    if (!tcpServer->listen(QHostAddress("0.0.0.0"), bind_port) && !server_status) {
+
+    connect(sslServer, SIGNAL(newConnection()), this, SLOT(newuser()));
+    connect(this, SIGNAL(sigSslCliDone(QSslSocket *)), this, SLOT(slotSslCliDone(QSslSocket *)));
+
+    if (!sslServer->listen(QHostAddress("0.0.0.0"), bind_port) && !server_status) {
         temp.clear();
-        temp.append("Unable to start the server : " + tcpServer->errorString() + "\n");
+        temp.append("Unable to start the server : " + sslServer->errorString() + "\n");
         MyError |= 8;//Unable to start tcp server
         throw TheError(MyError);
     } else {
         server_status = 1;
         total_pack = 0;
     }
+
     ui->status->setText(temp);
     LogSave(__func__, temp, true);
+
+
 
     connect(this, SIGNAL(sigSendPack()), this, SLOT(slotSendPack()));
 
@@ -335,11 +348,11 @@ MainWindow::~MainWindow()
     int i = 0;
     while (i < all_cli.length()) {
         cli = all_cli.at(i);
-        if (cli.soc) cli.soc->close();
+        if (cli.ssoc) cli.ssoc->close();
         i++;
     }
 
-    if (tcpServer) delete tcpServer;
+    if (sslServer) delete sslServer;
 
     if (tmr_msec) killTimer(tmr_msec);
     if (tmr) killTimer(tmr);
@@ -375,6 +388,7 @@ quint8 eop = 238;
         total_pack++;
         ui->packet->setText(tmp);
         ui->cat->setText("Getting packet # " + QString::number(total_pack, 10) + " done");
+
         emit sigSendPack();
     }
 
@@ -396,11 +410,11 @@ void MainWindow::sError(QSerialPort::SerialPortError code_sError)
 //------------------------------------------------------------------------------
 void MainWindow::cli_prn(s_cli *sc)
 {
-void *uk = sc->soc;
+void *uk = sc->ssoc;
 char stx[128] = {0};
 QString tmp = "ip_adr:" + sc->ip_adr;
 
-    sprintf(stx," connected: %u socket:%p peerPort:%u", sc->connected, uk, sc->peerPort);
+    sprintf(stx," connected: %u socket:%p peerPort:%u fd:%lld", sc->connected, uk, sc->peerPort, sc->ssoc->socketDescriptor());
     tmp.append(stx);
 
     LogSave(__func__, tmp, true);
@@ -417,8 +431,8 @@ QByteArray bf;
 
     while (i < all_cli.length()) {
         cli = all_cli.at(i++);
-        if ((cli.connected) && (cli.soc)) {
-            cli.soc->write(bf);
+        if ((cli.connected) && (cli.ssoc)) {
+            cli.ssoc->write(bf);
             yes = true;
         }
     }
@@ -446,18 +460,20 @@ void MainWindow::slotDemoGetData()
 void MainWindow::newuser()
 {
     if (server_status) {
-        QTcpSocket *cliSocket = tcpServer->nextPendingConnection();
-        int fd = static_cast<int>(cliSocket->socketDescriptor());
-        CliUrl = cliSocket->peerAddress().toString();// + ":" + QString::number(cliSocket->peerPort(), 10);
+        QSslSocket *soc = dynamic_cast<QSslSocket *>(sslServer->nextPendingConnection());
+        int fd = static_cast<int>(soc->socketDescriptor());
+
+        CliUrl = soc->peerAddress().toString();
+
         int i = 0, find = 0;
         while (i < all_cli.length()) {
-            cli = def_cli;
+            //cli = def_cli;
             cli = all_cli.at(i);
             if (CliUrl == cli.ip_adr) {
                 if (!cli.connected) {
-                    cli.peerPort = cliSocket->peerPort();
+                    cli.peerPort = soc->peerPort();
                     cli.connected = true;
-                    cli.soc = cliSocket;
+                    cli.ssoc = soc;
                     all_cli.replace(i, cli);
                     find = 1;
                     break;
@@ -468,28 +484,30 @@ void MainWindow::newuser()
             }
             i++;
         }
-        QString stx;
+        QString stx, ms;
         switch (find) {
             case 0 :
-                cliSocket->close();
+                soc->close();
                 stx = "Unknown client " + CliUrl;
                 break;
             case 1:
+                ms = cli.ip_adr + ":" + QString::number(cli.peerPort);
                 if (!i) {
                     ui->cli1->show();
-                    ui->ip1->setText(cli.ip_adr + ":" + QString::number(cli.peerPort));
+                    ui->ip1->setText(ms);
                     ui->ip1->setAlignment(Qt::AlignCenter);
                 } else {
                     ui->cli2->show();
-                    ui->ip2->setText(cli.ip_adr + ":" + QString::number(cli.peerPort));
+                    ui->ip2->setText(ms);
                     ui->ip2->setAlignment(Qt::AlignCenter);
                 }
-                stx.append("New client '" + CliUrl + "' online, socket " + QString::number(fd, 10));
-                connect(this, SIGNAL(sigCliDone(QTcpSocket *, int)), this, SLOT(slotCliDone(QTcpSocket *, int)));
-                connect(cli.soc, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotErrorClient(QAbstractSocket::SocketError)));
+                stx.append("New client '" + CliUrl + "' online, fd_socket " + QString::number(fd, 10));
+                connect(cli.ssoc, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotErrorClient(QAbstractSocket::SocketError)));
+                //connect(this, SIGNAL(sigSslCliDone(QSslSocket *)), this, SLOT(slotSslCliDone(QSslSocket *)));
+                cli_prn(&cli);
                 break;
             default:
-                cliSocket->close();
+                soc->close();
                 stx = "Client from this ip " + CliUrl + "already connected ";
                 break;
         }
@@ -498,56 +516,60 @@ void MainWindow::newuser()
     }
 }
 //------------------------------------------------------------------------------
-void MainWindow::slotCliDone(QTcpSocket *csoc, int prn)
+void MainWindow::slotSslCliDone(QSslSocket *csoc)
 {
-int fd = static_cast<int>(csoc->socketDescriptor());
+QString stx;
 
-    int i = 0, find = 0;
-    while (i < all_cli.length()) {
-        cli = all_cli.at(i);
-        if (cli.soc == csoc) {
-            cli.soc = nullptr;
-            cli.peerPort = 0;
-            cli.connected = false;
-            all_cli.replace(i, cli);
-            find = 1;
-            break;
+    stx.sprintf("sslSocket:%p ", dynamic_cast<void *>(csoc));
+
+    if (csoc != nullptr) {
+        int i = 0, find = 0;
+        while (i < all_cli.length()) {
+            cli = all_cli.at(i);
+            if (cli.ssoc == csoc) {
+                cli_prn(&cli);
+                cli.connected = false;
+                cli.peerPort = 0;
+                cli.ssoc = nullptr;
+                all_cli.replace(i, cli);
+                find = 1;
+                break;
+            }
+            i++;
         }
-        i++;
+
+        if (csoc->isOpen() && find) {
+            csoc->close();
+            if (!i) {
+                ui->cli1->hide();
+                stx = "Client 1 closed";
+                ui->ip1->setText(stx);
+                ui->ip1->setAlignment(Qt::AlignCenter);
+            } else {
+                ui->cli2->hide();
+                stx = "Client 2 closed";
+                ui->ip2->setText(stx);
+                ui->ip2->setAlignment(Qt::AlignCenter);
+            }
+        }
     }
 
-    if (csoc->isOpen() && find) {
-        if (prn) {
-            QString stx = "Close client, socket " + QString::number(fd, 10) + ".\n";
-            ui->status->setText(stx);
-            LogSave(__func__, stx, true);
-        }
-        disconnect(csoc);
-        csoc->close();
-        if (!i) {
-            ui->cli1->hide();
-            ui->ip1->setText("Client 1 closed");
-            ui->ip1->setAlignment(Qt::AlignCenter);
-        } else {
-            ui->cli2->hide();
-            ui->ip2->setText("Client 2 closed");
-            ui->ip2->setAlignment(Qt::AlignCenter);
-        }
-    }
-
-
+    ui->status->setText(stx + ". Wait new client ...");
+    LogSave(__func__, stx, true);
 }
 //-----------------------------------------------------------------------
 void MainWindow::slotErrorClient(QAbstractSocket::SocketError SErr)
 {
-QTcpSocket *cliSocket = reinterpret_cast<QTcpSocket *>(sender());
-QString qs = "Socket ERROR (" + QString::number(static_cast<int>(SErr), 10) + ") : " + cliSocket->errorString();
+ssoc = static_cast<QSslSocket *>(sender());
 
-    QString stx = "Close client, socket " + QString::number(cliSocket->socketDescriptor(), 10) + ". " + qs + "\n";
+QString qs = "Socket ERROR (" + QString::number(static_cast<int>(SErr), 10) + ") : " + ssoc->errorString();
+
+    QString stx = "Close client, socket " + QString::number(ssoc->socketDescriptor(), 10) + ". " + qs + "\n";
+
     ui->status->setText(stx);
     LogSave(__func__, stx, true);
 
-    emit sigCliDone(cliSocket, 0);
+    emit sigSslCliDone(ssoc);
 }
 //------------------------------------------------------------------------------
 QString MainWindow::sec_to_time(time_t &sec)
@@ -599,8 +621,8 @@ void MainWindow::slot_Release()
 {
     QMessageBox::information(this,
                              "Info",
-                             "\nCoral Plus server\nVersion " + ver
-                             + "\nBind tpc port " + QString::number(bind_port, 10)
+                             "\nCoral Plus ssl server\nVersion " + ver
+                             + "\nBind ssl port " + QString::number(bind_port, 10)
                              + "\nSerial port '" + serial_port + " " + QString::number(serial_speed, 10) + " 8N1"
                              + "'\nBuild #" + BUILD
                              + "\nQt framework version " + QT_VERSION_STR);
@@ -620,7 +642,7 @@ void MainWindow::slotComCli()
         temp.append("'" + ip_adr[i++] + "'");
     }
     temp.append("\n");
-    QMessageBox::information(this, "Info", "\n\nBind tcp port : " + QString::number(bind_port, 10)
+    QMessageBox::information(this, "Info", "\n\nBind ssl port : " + QString::number(bind_port, 10)
                              + "\n\nData Traffic serial port : '" + serial_port
                              + " " + QString::number(serial_speed, 10) + " 8N1'\n\n" + temp);
 }

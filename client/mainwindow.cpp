@@ -21,7 +21,9 @@
 //const QString ver = "2.1";//13.02.2019 // minor changes in mouseEvent - add mousePressEvent
 //const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
 //const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
-const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
+//const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
+const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
+
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
@@ -282,7 +284,7 @@ void itInfo::reRead()
                 msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
                 //ss = ss_green;
             }
-            ss = ss_green;
+            ss = ss_blue;
         break;
         case LOCK_STATUS :
             msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
@@ -290,7 +292,7 @@ void itInfo::reRead()
         break;
         case OINT_STATUS :
             msg.append("Outgoing int. call :"  + one.port + " - " + one.two);
-            ss = ss_blue;//white;//yellow;
+            ss = ss_green;//white;//yellow;
         break;
         case IEXT_STATUS :
             msg.append("Incomming ext. call : " + one.port + " - " + one.two);
@@ -312,7 +314,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     this->setWindowIcon(QIcon("png/cli_main.png"));
     this->setFixedSize(this->size());
-    this->setWindowTitle("CoralPlus client ver." + ver);
+    this->setWindowTitle("CoralPlus ssl client ver." + ver);
 
     ico_black = new QIcon("png/BlackTag.png");
     ico_green = new QIcon("png/GreenTag.png");
@@ -352,7 +354,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 #endif
 
     ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
-    _pSocket = nullptr;
+//    _pSocket = nullptr;
+    ssoc = nullptr;
     mv = nullptr;
     Dlg = nullptr;
     Calc = nullptr;
@@ -410,7 +413,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         MyError |= 2;//timer error
         throw TheError(MyError);
     }
-
+/*
     _pSocket = new QTcpSocket(this);
     if (!_pSocket) {
         MyError |= 0x20;//create socket error - no memory
@@ -420,6 +423,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(_pSocket, SIGNAL(disconnected()), this, SLOT(disconnectTcp()));
     connect(_pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(SokError(QAbstractSocket::SocketError)));
     connect(_pSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+*/
+    ssoc = new QSslSocket(this);
+    if (!ssoc) {
+        MyError |= 0x20;//create socket error - no memory
+        throw TheError(MyError);
+    }
+    ssoc->addCaCertificates("key.pem");
+    connect(ssoc, SIGNAL(connected()), this, SLOT(connectSsl()));
+    connect(ssoc, SIGNAL(disconnected()), this, SLOT(disconnectSsl()));
+    connect(ssoc, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(SokError(QAbstractSocket::SocketError)));
+    connect(ssoc, SIGNAL(readyRead()), this, SLOT(readData()));
 
     QObject::connect(this, &MainWindow::sigNewCon, this, &MainWindow::slotNewCon);
     QObject::connect(this, &MainWindow::sigPackParser, this, &MainWindow::slotPackParser);
@@ -436,9 +450,9 @@ MainWindow::~MainWindow()
     if (tmr_wait > 0) killTimer(tmr_wait);
     if (tmr > 0) killTimer(tmr);
 
-    if (_pSocket) {
-        if (_pSocket->isOpen()) _pSocket->close();
-        delete _pSocket;
+    if (ssoc) {
+        if (ssoc->isOpen()) ssoc->close();
+        delete ssoc;
     }
 
     if (mv) {
@@ -505,19 +519,20 @@ QString qs;
     qs.sprintf("[%d] Socket ERROR (%d) : server ", try_cnt, SocketError);
     qs.append(srv_adr);
     qs.append(" <- ");
-    if (_pSocket) qs.append(_pSocket->errorString());
-    disconnectTcp();
+    if (ssoc) qs.append(ssoc->errorString());
+    disconnectSsl();
 
 }
 //--------------------------------------------------------------------------------
-void MainWindow::connectTcp()
+//void MainWindow::connectTcp()
+void MainWindow::connectSsl()
 {
     ui->run->show();
     ui->l_data->clear();
     ui->l_data->setAlignment(Qt::AlignLeft);
 
     sbar.sprintf("#%d Connected to server ", try_cnt);
-    if (_pSocket) sbar += _pSocket->peerName() + ":" + QString::number(_pSocket->peerPort());
+    if (ssoc) sbar += ssoc->peerName() + ":" + QString::number(ssoc->peerPort());
     statusBar()->showMessage(sbar);
 
     LogSave(__func__, sbar, true);
@@ -528,12 +543,13 @@ void MainWindow::connectTcp()
     if (tmr_wait > 0) killTimer(tmr_wait);
 }
 //--------------------------------------------------------------------------------
-void MainWindow::disconnectTcp()
+//void MainWindow::disconnectTcp()
+void MainWindow::disconnectSsl()
 {
     if (conTrue) clearAllPort();
     conTrue = false;
 
-    if (_pSocket) _pSocket->close();
+    if (ssoc) ssoc->close();
 
     sbar = "Disconnect from server " + ServerIPAddress + ". Try #"+QString::number(try_cnt, 10)+" connect after " + QString::number(wTime, 10) + " sec";
     statusBar()->showMessage(sbar);
@@ -563,11 +579,10 @@ void MainWindow::slotNewCon()
     sbar = "Try #" + QString::number(try_cnt, 10) +" connect to Server " + ServerIPAddress + " ...";
     statusBar()->showMessage(sbar);
 
-    if (_pSocket) {
-        if (_pSocket->isOpen()) _pSocket->close();
-        _pSocket->connectToHost(srv_adr, static_cast<uint16_t>(srv_port));
+    if (ssoc) {
+        if (ssoc->isOpen()) ssoc->close();
+        ssoc->connectToHostEncrypted(srv_adr, static_cast<uint16_t>(srv_port));
         rxdata.clear();
-        txdata.clear();
     }
 
     LogSave(__func__, sbar, true);
@@ -577,10 +592,10 @@ void MainWindow::readData()
 {
 quint8 eop = 0xee;//238;
 
-    if (_pSocket) {
+    if (ssoc) {
         rxdata.clear();
         while (true) {
-            rxdata += _pSocket->read(1);
+            rxdata += ssoc->read(1);
             if (rxdata.contains(static_cast<char>(eop))) break;
         }
         emit sigPackParser(rxdata);
@@ -1016,6 +1031,12 @@ void MainWindow::slotShowHideAdminMenu(bool flag)
     ui->menuTrunk->setDisabled(flag);
     ui->menuCallForward->setDisabled(flag);
     ui->menuSpecialFeatures->setDisabled(flag);
+
+    ui->actionReport_of_post_messages_to_subscribers->setDisabled(flag);
+    ui->actionReport_of_maliciouse_calls->setDisabled(flag);
+    ui->actionSnapShot_all_trunk_groups->setDisabled(flag);
+    ui->actionReport_blocking_file->setDisabled(flag);
+
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_page(int cp)
@@ -1118,7 +1139,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 //-----------------------------------------------------------------------
 void MainWindow::slot_Release()
 {
-    QMessageBox::information(this, "Info", "\nCoral Plus client\nVersion " + ver + "\nBuild #" + BUILD + "\nQt framework version " + QT_VERSION_STR + "\n");
+    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nQt framework version " + QT_VERSION_STR + "\n");
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()

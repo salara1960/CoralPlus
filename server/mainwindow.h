@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "build_number.h"
+#include "SslServer.h"
 
 #include <sys/time.h>
 #include <time.h>
@@ -22,6 +23,9 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QtNetwork/QAbstractSocket>
+#include <QSslSocket>
+#include <QSslError>
+#include <QList>
 
 
 #undef SET_WIN32
@@ -41,9 +45,9 @@
 //-----------------------------------------------------------------------------------
 typedef struct {
     QString ip_adr;
-    bool connected;
-    QTcpSocket *soc;
     uint16_t peerPort;
+    bool connected;
+    QSslSocket *ssoc;
 } s_cli;
 
 //-----------------------------------------------------------------------------------
@@ -92,7 +96,7 @@ public slots:
     void slotDemoGetData();
     void newuser();
     void slotErrorClient(QAbstractSocket::SocketError SErr);
-    void slotCliDone(QTcpSocket *, int);
+    void slotSslCliDone(QSslSocket *);
     void slotSendPack();
     // serial slot
     void sReadyRead();
@@ -102,9 +106,9 @@ public slots:
 signals:
 
     void sigDemoGetData();
-    void sigCliDone(QTcpSocket *, int);
+    void sigSslCliDone(QSslSocket *);
     void sigSendPack();
-
+    void sslErrors(QList<QSslError> &);
 
 private:
 
@@ -126,10 +130,12 @@ private:
     int server_status;
     bool client;
     uint32_t total_pack, send_pack;
-    QTcpServer *tcpServer;
     QString CliUrl;
 
     QQueue<QByteArray> ku;
+
+    QSslSocket *ssoc;
+    SslServer *sslServer;
 
 };
 

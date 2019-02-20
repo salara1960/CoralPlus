@@ -190,8 +190,10 @@ public slots:
     void slotMakeCalc();
 
     void readData();
-    void connectTcp();
-    void disconnectTcp();
+//    void connectTcp();
+//    void disconnectTcp();
+    void connectSsl();
+    void disconnectSsl();
     void SokError(QAbstractSocket::SocketError SocketError);
     void slotNewCon();
     void slotPackParser(QByteArray &);
@@ -207,8 +209,9 @@ private:
     Ui::MainWindow *ui;
     int srv_port, MyError, tmr, tmr_wait, try_cnt, cntWait;
     QString srv_adr;
-    QTcpSocket *_pSocket;
-    QByteArray txdata, rxdata;
+    QSslSocket *ssoc;
+
+    QByteArray rxdata;
     bool beginSrv, errFirst, startWait;
     QString sbar;
     time_t time_start;

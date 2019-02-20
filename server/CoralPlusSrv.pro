@@ -29,11 +29,13 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    SslServer.cpp
 
 HEADERS += \
         mainwindow.h \
-    build_number.h
+    build_number.h \
+    SslServer.h
 
 FORMS += \
         mainwindow.ui
