@@ -8,7 +8,8 @@
 //const QString ver = "1.3";//10.02.2019
 //const QString ver = "1.4";//11.02.2019 - with queue for packets
 //const QString ver = "1.5";//12.02.2019 - minor changes in GUI
-const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
+//const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
+const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
 
 bool demos = false;
 
@@ -302,7 +303,11 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     }
     sslServer->setSslLocalCertificate("key.pem");
     sslServer->setSslPrivateKey("key.key");
+//#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+//    sslServer->setSslProtocol(QSsl::TlsV1_3);
+//#else
     sslServer->setSslProtocol(QSsl::TlsV1_2);
+//#endif
 
     temp = "TCP Server start, listen port " + QString::number(bind_port, 10);
 

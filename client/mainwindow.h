@@ -12,7 +12,8 @@
 
 #include <QApplication>
 #include <QMainWindow>
-#include <QtNetwork/QTcpSocket>
+#include <QSslSocket>
+#include <QSslError>
 #include <QtNetwork/QAbstractSocket>
 #include <QEvent>
 #include <QDateTime>
@@ -27,6 +28,7 @@
 #include <QMovie>
 #include <QFile>
 #include <QtTest/QTest>
+#include <QList>
 
 #include "itDialog.h"
 #include "calc.h"
@@ -190,8 +192,6 @@ public slots:
     void slotMakeCalc();
 
     void readData();
-//    void connectTcp();
-//    void disconnectTcp();
     void connectSsl();
     void disconnectSsl();
     void SokError(QAbstractSocket::SocketError SocketError);
@@ -204,6 +204,8 @@ signals:
     void sigShowHideAdminMenu(bool);
     void sigNewCon();
     void sigPackParser(QByteArray &);
+
+    void sslErrors(QList<QSslError>);
 
 private:
     Ui::MainWindow *ui;

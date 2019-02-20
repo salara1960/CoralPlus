@@ -22,7 +22,8 @@
 //const QString ver = "2.2";//14.02.2019 // major changes : add port_window point array and find port_window by point (x,y) when Qt:RightButton pressed
 //const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
 //const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
-const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
+//const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
+const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
 
 
 
@@ -44,9 +45,7 @@ const QString Name2PortType[] = {"SltSet", "KeySet", "Trunk", "TkGp", "Modem", "
 //const uint8_t KolStatus = 6;
 const QString PortStatus[] = {"", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
 const QString Name2PortStatus[] = {"Idle", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
-//IDLE_STATUS - Outgoing internal call - status 0x00
-//BUSY_STATUS - Incoming external call - status 0x01
-//LOCK_STATUS - Outgoing external call - status 0x02
+
 const int wPort = 74;
 const int hPort = 46;
 const int Lis = 0;//1;
@@ -277,13 +276,10 @@ void itInfo::reRead()
             msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
         break;
         case BUSY_STATUS :
-            if ((one.two.at(0) <= '9') && (one.two.at(0) >= '0')) {
+            if ((one.two.at(0) <= '9') && (one.two.at(0) >= '0'))
                 msg.append(" Port " + one.port + " connected with " + one.two);
-                //ss = ss_blue;
-            } else {
+            else
                 msg.append(" Port " + one.port + " status " + Name2PortStatus[one.status]);
-                //ss = ss_green;
-            }
             ss = ss_blue;
         break;
         case LOCK_STATUS :
@@ -292,7 +288,7 @@ void itInfo::reRead()
         break;
         case OINT_STATUS :
             msg.append("Outgoing int. call :"  + one.port + " - " + one.two);
-            ss = ss_green;//white;//yellow;
+            ss = ss_green;
         break;
         case IEXT_STATUS :
             msg.append("Incomming ext. call : " + one.port + " - " + one.two);
@@ -354,7 +350,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 #endif
 
     ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
-//    _pSocket = nullptr;
+
     ssoc = nullptr;
     mv = nullptr;
     Dlg = nullptr;
@@ -413,20 +409,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         MyError |= 2;//timer error
         throw TheError(MyError);
     }
-/*
-    _pSocket = new QTcpSocket(this);
-    if (!_pSocket) {
-        MyError |= 0x20;//create socket error - no memory
-        throw TheError(MyError);
-    }
-    connect(_pSocket, SIGNAL(connected()), this, SLOT(connectTcp()));
-    connect(_pSocket, SIGNAL(disconnected()), this, SLOT(disconnectTcp()));
-    connect(_pSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(SokError(QAbstractSocket::SocketError)));
-    connect(_pSocket, SIGNAL(readyRead()), this, SLOT(readData()));
-*/
+
     ssoc = new QSslSocket(this);
     if (!ssoc) {
-        MyError |= 0x20;//create socket error - no memory
+        MyError |= 0x20;//create ssl socket error
         throw TheError(MyError);
     }
     ssoc->addCaCertificates("key.pem");
@@ -524,7 +510,6 @@ QString qs;
 
 }
 //--------------------------------------------------------------------------------
-//void MainWindow::connectTcp()
 void MainWindow::connectSsl()
 {
     ui->run->show();
@@ -543,7 +528,6 @@ void MainWindow::connectSsl()
     if (tmr_wait > 0) killTimer(tmr_wait);
 }
 //--------------------------------------------------------------------------------
-//void MainWindow::disconnectTcp()
 void MainWindow::disconnectSsl()
 {
     if (conTrue) clearAllPort();
@@ -582,6 +566,30 @@ void MainWindow::slotNewCon()
     if (ssoc) {
         if (ssoc->isOpen()) ssoc->close();
         ssoc->connectToHostEncrypted(srv_adr, static_cast<uint16_t>(srv_port));
+
+        connect(ssoc,
+                QOverload<const QList<QSslError> &>::of(&QSslSocket::sslErrors),
+                [=](const QList<QSslError> &list)
+                {
+                    ssoc->ignoreSslErrors();
+                    QString stz = "Ssl Error : ";
+                    foreach (QSslError item, list) stz.append(item.errorString() + " ");
+                    statusBar()->showMessage(stz);
+                    LogSave(__func__, stz, true);
+                }
+                );
+
+        ssoc->waitForEncrypted(2000);
+
+        QString stx = "Server certificate :\n";
+        foreach (QSslCertificate ca, ssoc->peerCertificateChain()) {
+            if (ca.isSelfSigned()) stx.append("SelfSigned ");
+            stx.append(ca.toText() + "\n-----------------------------------------\n");
+        }
+        LogSave(__func__, stx, true);
+
+
+
         rxdata.clear();
     }
 
