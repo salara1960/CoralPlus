@@ -205,8 +205,6 @@ signals:
     void sigNewCon();
     void sigPackParser(QByteArray &);
 
-    void sslErrors(QList<QSslError>);
-
 private:
     Ui::MainWindow *ui;
     int srv_port, MyError, tmr, tmr_wait, try_cnt, cntWait;

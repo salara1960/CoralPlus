@@ -23,7 +23,8 @@
 //const QString ver = "2.3";//15.02.2019 // major changes : add new status values (for connected messages) and color in Info windows
 //const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
 //const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
-const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
+//const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
+const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
 
 
 
@@ -323,12 +324,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->l_all_ports->setFont(font);
     ui->l_date_time->setFont(font);
     ui->l_data->setFont(font);
-    font.setPixelSize(16);//18
+
     ui->menu->setFont(font);
     ui->menuBar->setFont(font);
     ui->menu_2->setFont(font);
     ui->menu_3->setFont(font);
     ui->menu_4->setFont(font);
+    ui->actionAbout->setFont(font);
+    ui->actionCalc->setFont(font);
+    ui->actionRelease->setFont(font);
+    ui->actionDisable_menu->setFont(font);
+    ui->actionEnable_menu->setFont(font);
+    ui->actionReport_blocking_file->setFont(font);
+    ui->actionReport_of_maliciouse_calls->setFont(font);
+    ui->actionReport_of_post_messages_to_subscribers->setFont(font);
+    ui->actionSnapShot_all_trunk_groups->setFont(font);
+
+    ui->statusBar->setFont(font);
+
+    ui->win_area->setFont(font);
 #else
     /**/
     //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
@@ -566,29 +580,43 @@ void MainWindow::slotNewCon()
     if (ssoc) {
         if (ssoc->isOpen()) ssoc->close();
         ssoc->connectToHostEncrypted(srv_adr, static_cast<uint16_t>(srv_port));
-
+#if QT_VERSION <= QT_VERSION_CHECK(5, 7, 0)
         connect(ssoc,
-                QOverload<const QList<QSslError> &>::of(&QSslSocket::sslErrors),
+                static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
                 [=](const QList<QSslError> &list)
                 {
-                    ssoc->ignoreSslErrors();
-                    QString stz = "Ssl Error : ";
-                    foreach (QSslError item, list) stz.append(item.errorString() + " ");
-                    statusBar()->showMessage(stz);
-                    LogSave(__func__, stz, true);
+                    if (list.length()) {
+                        ssoc->ignoreSslErrors();
+                        QString stz = "Ssl Error : ";
+                        foreach (QSslError item, list) stz.append(item.errorString() + " ");
+                        statusBar()->showMessage(stz);
+                        LogSave(__func__, stz, true);
+                    }
                 }
                 );
+#else
+        connect(ssoc,
+                QOverload < const QList<QSslError> &>::of(&QSslSocket::sslErrors),
+                [=](const QList<QSslError> &list)
+                {
+                    if (list.length()) {
+                        ssoc->ignoreSslErrors();
+                        QString stz = "Ssl Error : ";
+                        foreach (QSslError item, list) stz.append(item.errorString() + " ");
+                        statusBar()->showMessage(stz);
+                        LogSave(__func__, stz, true);
+                    }
+                }
+                );
+#endif
 
         ssoc->waitForEncrypted(2000);
-
         QString stx = "Server certificate :\n";
         foreach (QSslCertificate ca, ssoc->peerCertificateChain()) {
             if (ca.isSelfSigned()) stx.append("SelfSigned ");
             stx.append(ca.toText() + "\n-----------------------------------------\n");
         }
         LogSave(__func__, stx, true);
-
-
 
         rxdata.clear();
     }

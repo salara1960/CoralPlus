@@ -9,7 +9,8 @@
 //const QString ver = "1.4";//11.02.2019 - with queue for packets
 //const QString ver = "1.5";//12.02.2019 - minor changes in GUI
 //const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
-const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
+//const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
+const QString ver = "2.2";//21.02.2019 - minor changes : sslErrors check select by Qt version
 
 bool demos = false;
 
@@ -419,7 +420,7 @@ void *uk = sc->ssoc;
 char stx[128] = {0};
 QString tmp = "ip_adr:" + sc->ip_adr;
 
-    sprintf(stx," connected: %u socket:%p peerPort:%u fd:%lld", sc->connected, uk, sc->peerPort, sc->ssoc->socketDescriptor());
+    sprintf(stx," connected: %u socket:%p peerPort:%u fd:%d", sc->connected, uk, sc->peerPort, sc->ssoc->socketDescriptor());
     tmp.append(stx);
 
     LogSave(__func__, tmp, true);
@@ -508,7 +509,35 @@ void MainWindow::newuser()
                 }
                 stx.append("New client '" + CliUrl + "' online, fd_socket " + QString::number(fd, 10));
                 connect(cli.ssoc, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotErrorClient(QAbstractSocket::SocketError)));
-                //connect(this, SIGNAL(sigSslCliDone(QSslSocket *)), this, SLOT(slotSslCliDone(QSslSocket *)));
+#if QT_VERSION <= QT_VERSION_CHECK(5, 7, 0)
+                connect(cli.ssoc,
+                static_cast<void (QSslSocket::*)(const QList<QSslError> &)>(&QSslSocket::sslErrors),
+                [=](const QList<QSslError> &list)
+                {
+                    if (list.length()) {
+                        ssoc->ignoreSslErrors();
+                        QString stz = "Ssl Error : ";
+                        foreach (QSslError item, list) stz.append(item.errorString() + " ");
+                        ui->status->setText(stz);
+                        LogSave(__func__, stz, true);
+                    }
+                }
+                );
+#else
+                connect(cli.ssoc,
+                QOverload < const QList<QSslError> &>::of(&QSslSocket::sslErrors),
+                [=](const QList<QSslError> &list)
+                {
+                    if (list.length()) {
+                        ssoc->ignoreSslErrors();
+                        QString stz = "Ssl Error : ";
+                        foreach (QSslError item, list) stz.append(item.errorString() + " ");
+                        ui->status->setText(stz);
+                        LogSave(__func__, stz, true);
+                    }
+                }
+                );
+#endif
                 cli_prn(&cli);
                 break;
             default:

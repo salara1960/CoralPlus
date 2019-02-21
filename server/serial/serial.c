@@ -1,3 +1,6 @@
+#define SET_WIN32
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -151,7 +154,7 @@ uint32_t spd = SPEED, ispd = 0;
         	    printf("%s\n", chap);
 		}
 	    }
-	    
+
 	    usleep(rand() % maxp + 1);
 	    //sleep(8);
         }

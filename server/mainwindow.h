@@ -28,7 +28,7 @@
 #include <QList>
 
 
-#undef SET_WIN32
+#define SET_WIN32
 
 
 #define MAX_CLIENTS 2
