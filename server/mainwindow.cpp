@@ -183,7 +183,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
 
 
     QFont font = this->font();
-#ifdef SET_WIN32
+#ifdef _WIN32
     font.setPixelSize(16);
 #else
     font.setPixelSize(15);//14
@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
             sobj->flush();
             sobj->clear(QSerialPort::Input);
             QObject::connect(sobj, &QSerialPort::readyRead, this, &MainWindow::sReadyRead);
-#ifdef SET_WIN32
+#ifdef _WIN32
             connect(sobj, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(sError(QSerialPort::SerialPortError)));
 #else
             QObject::connect(sobj, &QSerialPort::errorOccurred, this, &MainWindow::sError);
@@ -662,7 +662,7 @@ void MainWindow::slot_Release()
                              + "\nBind ssl port " + QString::number(bind_port, 10)
                              + "\nSerial port '" + serial_port + " " + QString::number(serial_speed, 10) + " 8N1"
                              + "'\nBuild #" + BUILD
-                             + "\nSource location https://github.com/salara1960/CoralPlus"
+                             + "\nSource https://github.com/salara1960/CoralPlus"
                              + "\nQt framework version " + QT_VERSION_STR);
 }
 //-----------------------------------------------------------------------

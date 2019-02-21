@@ -232,7 +232,7 @@ itInfo::itInfo(QWidget *parent, TheWin *uk) : QDialog(parent), uid(new Ui::itInf
 
     uid->setupUi(this);
 
-#ifdef SET_WIN32
+#ifdef _WIN32
     QFont font = this->font();
     font.setPixelSize(14);
     this->setFont(font);
@@ -317,7 +317,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ico_green = new QIcon("png/GreenTag.png");
 
     QFont font = this->font();
-#ifdef SET_WIN32
+#ifdef _WIN32
     //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
     font.setPixelSize(14);//15
     ui->l_busy->setFont(font);
@@ -642,7 +642,7 @@ uint32_t my_htonl(uint32_t in)
 {
 uint32_t res = in;
 
-#ifdef SET_WIN32
+#ifdef _WIN32
     uint8_t *uk;
     uint8_t b1, b2;
 
@@ -1175,7 +1175,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 //-----------------------------------------------------------------------
 void MainWindow::slot_Release()
 {
-    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nSource location https://github.com/salara1960/CoralPlus\nQt framework version " + QT_VERSION_STR + "\n");
+    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nSource https://github.com/salara1960/CoralPlus\nQt framework version " + QT_VERSION_STR + "\n");
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()
