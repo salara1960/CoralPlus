@@ -181,19 +181,22 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->cli1->hide();
     ui->cli2->hide();
 
-#ifndef SET_WIN32
+
     QFont font = this->font();
+#ifdef SET_WIN32
+    font.setPixelSize(16);
+#else
     font.setPixelSize(14);
+#endif
+
     this->setFont(font);
     ui->ip1->setFont(font); ui->ip1->setHtml("Client 1"); ui->ip1->setAlignment(Qt::AlignCenter);
     ui->ip2->setFont(font); ui->ip2->setHtml("Client 2"); ui->ip2->setAlignment(Qt::AlignCenter);
     ui->cat->setFont(font);
-
-    ui->date->setFont(font);// ui->date->setAlignment(Qt::AlignRight);
-
-    font.setPixelSize(14);
+    ui->date->setFont(font); ui->date->setAlignment(Qt::AlignRight);
     ui->packet->setFont(font); ui->packet->setHtml("HEX");
     ui->status->setFont(font);
+
     ui->menuBar->setFont(font);
     ui->menuHelp->setFont(font);
     ui->menuService->setFont(font);
@@ -201,7 +204,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->actionReread_config->setFont(font);
     ui->actionAbout->setFont(font);
     ui->actionRelease->setFont(font);
-#endif
+
 
     serial_speed = ss;
     serial_port = sp;
@@ -647,7 +650,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
                 tim->tm_hour, tim->tm_min, tim->tm_sec);
         ttm -= startTime;
         ui->date->setHtml(stk + sec_to_time(ttm));
-        ui->date->setAlignment(Qt::AlignCenter);
+        ui->date->setAlignment(Qt::AlignRight);
     }
 }
 //-----------------------------------------------------------------------
