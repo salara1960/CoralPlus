@@ -186,7 +186,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
 #ifdef SET_WIN32
     font.setPixelSize(16);
 #else
-    font.setPixelSize(14);
+    font.setPixelSize(15);//14
 #endif
 
     this->setFont(font);
@@ -423,7 +423,7 @@ void *uk = sc->ssoc;
 char stx[128] = {0};
 QString tmp = "ip_adr:" + sc->ip_adr;
 
-    sprintf(stx," connected: %u socket:%p peerPort:%u fd:%d", sc->connected, uk, sc->peerPort, sc->ssoc->socketDescriptor());
+    sprintf(stx," connected: %u socket:%p peerPort:%u fd:%d", sc->connected, uk, sc->peerPort, static_cast<int>(sc->ssoc->socketDescriptor()));
     tmp.append(stx);
 
     LogSave(__func__, tmp, true);
@@ -662,6 +662,7 @@ void MainWindow::slot_Release()
                              + "\nBind ssl port " + QString::number(bind_port, 10)
                              + "\nSerial port '" + serial_port + " " + QString::number(serial_speed, 10) + " 8N1"
                              + "'\nBuild #" + BUILD
+                             + "\nSource location https://github.com/salara1960/CoralPlus"
                              + "\nQt framework version " + QT_VERSION_STR);
 }
 //-----------------------------------------------------------------------

@@ -1175,7 +1175,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 //-----------------------------------------------------------------------
 void MainWindow::slot_Release()
 {
-    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nQt framework version " + QT_VERSION_STR + "\n");
+    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nSource location https://github.com/salara1960/CoralPlus\nQt framework version " + QT_VERSION_STR + "\n");
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()
