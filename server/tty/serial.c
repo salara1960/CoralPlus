@@ -1,4 +1,8 @@
-#undef SET_WIN32
+#ifdef WINDOWS_KEY_WORD
+    #define SET_WIN32
+#else
+    #undef SET_WIN32
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
