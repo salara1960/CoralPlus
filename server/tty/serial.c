@@ -1,4 +1,4 @@
-#define SET_WIN32
+#undef SET_WIN32
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +15,6 @@
 #ifdef SET_WIN32
     #include <windows.h>
 #else
-//    #include <string.h>
     #include <sys/select.h>
     #include <netinet/in.h>
     #include <sys/un.h>
@@ -27,7 +26,6 @@
     #include <sys/socket.h>
     #include <sys/ioctl.h>
     #include <termios.h>
-//    #include <math.h>
 
     #define SPEED B9600
 #endif
@@ -111,9 +109,9 @@ int rlen = 0;
     int res = 0;
     uint32_t spd;
     uint32_t maxp = 2000000;//2 sec
-    const char *def_device = "./serial /dev/ttyUSB1:9600";
+    const char *def_par = "./serial /dev/ttyUSB1:9600";
     spd = SPEED;
-    int rxlen = 0, txlen;
+    int rxlen = 0;
     int fd;
     struct timeval mytv;
     fd_set Fds;
