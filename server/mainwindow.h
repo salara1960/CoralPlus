@@ -26,6 +26,7 @@
 #include <QSslSocket>
 #include <QSslError>
 #include <QList>
+#include <QProcess>
 
 
 #define MAX_CLIENTS 2
@@ -133,6 +134,8 @@ private:
 
     QSslSocket *ssoc;
     SslServer *sslServer;
+
+    QProcess *lastProc;
 
 };
 

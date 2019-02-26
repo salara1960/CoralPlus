@@ -29,6 +29,8 @@
 #include <QFile>
 #include <QtTest/QTest>
 #include <QList>
+#include <QProcess>
+#include <QSettings>
 
 #include "itDialog.h"
 #include "calc.h"
@@ -236,6 +238,8 @@ private:
 
     itInfo *Info;
     int MaxPages;
+
+    QProcess *lastProc;
 
 };
 

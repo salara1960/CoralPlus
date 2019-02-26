@@ -10,7 +10,8 @@
 //const QString ver = "1.5";//12.02.2019 - minor changes in GUI
 //const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
 //const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
-const QString ver = "2.2";//21.02.2019 - minor changes : sslErrors check select by Qt version
+//const QString ver = "2.2";//21.02.2019 - minor changes : sslErrors check select by Qt version
+const QString ver = "2.3";//26.02.2019 - minor changes : add start process for coral.pdf open (menu About)
 
 bool demos = false;
 
@@ -20,6 +21,13 @@ const QString DemoFileName = "demo.dmp";
 const QString LogFileName = "srv_logs.txt";
 const QString ipFileName = "coral.ip";
 
+const QString pdf = "coral.pdf";
+#ifdef _WIN32
+    const QString uPDF = "AcroRd32.exe";
+#else
+    const QString uPDF = "acroread";
+#endif
+
 const s_cli def_cli = {"", 0, false, nullptr};
 
 const static char *all_param_name[] = {"mode=", "bind=", "serial="};
@@ -27,6 +35,7 @@ const static char *all_param_name[] = {"mode=", "bind=", "serial="};
 uint16_t bPort = DEF_PORT_NUMBER;
 QString sPort = def_serial_port;
 int sSpeed = DEF_SPEED;
+
 
 //--------------------------------------------------------------------------------
 void LogSave(const char *func, QString st, bool pr)
@@ -211,6 +220,8 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     bind_port = bp;
     ku.clear();
 
+    lastProc = NULL;
+
     sslServer = nullptr;
     server_status = 0;
 
@@ -341,6 +352,11 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
 //-----------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
+    if (lastProc) {
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+    }
     if (dmpFile) {
         if (dmpFile->isOpen()) dmpFile->close();
         delete dmpFile;
@@ -668,7 +684,45 @@ void MainWindow::slot_Release()
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()
 {
-    QMessageBox::information(this, "Help", "\nSorry, no help present. (:\n");
+    //QMessageBox::information(this, "Help", "\nSorry, no help present. (:\n");
+
+    if (lastProc) {
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+        lastProc = NULL;
+    }
+
+    lastProc = new QProcess(this);
+
+    if (lastProc) {
+        QString stx = QDir::currentPath();
+        QString cmd = "";
+#ifdef _WIN32
+        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe", QSettings::NativeFormat);
+        QString pbro = es.value("Path").toString();
+        if (pbro.length()) {
+            pbro.append("\\");
+            cmd = pbro;
+        }
+        stx.append("/");
+#else
+        stx.append("\\");
+#endif
+        cmd.append(uPDF);
+        QStringList arg(stx + pdf);
+        stx = "Start: " + cmd;
+        int ind = 0, kol = arg.size();
+        while (ind < kol) stx.append(" " + arg.at(ind++));
+        LogSave(__func__, stx, true);
+
+        lastProc->startDetached(cmd, arg);
+        lastProc->waitForStarted(2000);
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+        lastProc = nullptr;
+    }
 }
 //-----------------------------------------------------------------------------------
 void MainWindow::slotComCli()

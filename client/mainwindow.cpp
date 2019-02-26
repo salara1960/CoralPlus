@@ -24,13 +24,22 @@
 //const QString ver = "2.4";//16.02.2019 // minor changes : remove pages whithout port's window
 //const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
 //const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
-const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
+//const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
+const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
 
 
 
 QString ServerIPAddress = "127.0.0.1:6543";
 QString CfgFil = "coral.npl";
 QString TrkFil = "coral.trk";
+
+const QString pdf = "coral.pdf";
+#ifdef _WIN32
+    const QString uPDF = "AcroRd32.exe";
+#else
+    const QString uPDF = "acroread";
+#endif
+
 QString myPwd;
 const QString _myPwd = "zero1960";
 const QString def_srv_adr = "127.0.0.1";
@@ -365,6 +374,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
 
+    lastProc = nullptr;
     ssoc = nullptr;
     mv = nullptr;
     Dlg = nullptr;
@@ -447,6 +457,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 //-----------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
+    if (lastProc) {
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+    }
     if (tmr_wait > 0) killTimer(tmr_wait);
     if (tmr > 0) killTimer(tmr);
 
@@ -1180,7 +1195,45 @@ void MainWindow::slot_Release()
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()
 {
-    QMessageBox::information(this, "Help", "\nSorry, no help present. (:\n");
+    //QMessageBox::information(this, "Help", "\nSorry, no help present. (:\n");
+
+    if (lastProc) {
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+        lastProc = NULL;
+    }
+
+    lastProc = new QProcess(this);
+
+    if (lastProc) {
+        QString stx = QDir::currentPath();
+        QString cmd = "";
+#ifdef _WIN32
+        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe", QSettings::NativeFormat);
+        QString pbro = es.value("Path").toString();
+        if (pbro.length()) {
+            pbro.append("\\");
+            cmd = pbro;
+        }
+        stx.append("/");
+#else
+        stx.append("\\");
+#endif
+        cmd.append(uPDF);
+        QStringList arg(stx + pdf);
+        stx = "Start: " + cmd;
+        int ind = 0, kol = arg.size();
+        while (ind < kol) stx.append(" " + arg.at(ind++));
+        LogSave(__func__, stx, true);
+
+        lastProc->startDetached(cmd, arg);
+        lastProc->waitForStarted(2000);
+        lastProc->close();
+        lastProc->kill();
+        delete lastProc;
+        lastProc = nullptr;
+    }
 }
 //-----------------------------------------------------------------------
 void MainWindow::mousePressEvent(QMouseEvent *e)
