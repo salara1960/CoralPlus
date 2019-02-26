@@ -220,7 +220,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     bind_port = bp;
     ku.clear();
 
-    lastProc = NULL;
+    lastProc = nullptr;
 
     sslServer = nullptr;
     server_status = 0;
@@ -324,7 +324,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     sslServer->setSslProtocol(QSsl::TlsV1_2);
 //#endif
 
-    temp = "TCP Server start, listen port " + QString::number(bind_port, 10);
+    temp = "SSL Server start, listen port " + QString::number(bind_port, 10);
 
     connect(sslServer, SIGNAL(newConnection()), this, SLOT(newuser()));
     connect(this, SIGNAL(sigSslCliDone(QSslSocket *)), this, SLOT(slotSslCliDone(QSslSocket *)));
@@ -382,7 +382,7 @@ MainWindow::~MainWindow()
     if (tmr_msec) killTimer(tmr_msec);
     if (tmr) killTimer(tmr);
 
-    LogSave(__func__, "Stop server", true);
+    LogSave(__func__, "Stop SSL server", true);
 
     delete ui;
 }
@@ -690,24 +690,18 @@ void MainWindow::slot_About()
         lastProc->close();
         lastProc->kill();
         delete lastProc;
-        lastProc = NULL;
+        lastProc = nullptr;
     }
 
     lastProc = new QProcess(this);
 
     if (lastProc) {
-        QString stx = QDir::currentPath();
+        QString stx = QDir::currentPath() + "/";
         QString cmd = "";
 #ifdef _WIN32
-        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe", QSettings::NativeFormat);
-        QString pbro = es.value("Path").toString();
-        if (pbro.length()) {
-            pbro.append("\\");
-            cmd = pbro;
-        }
-        stx.append("/");
-#else
-        stx.append("\\");
+        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + uPDF, QSettings::NativeFormat);
+        cmd = es.value("Path").toString();
+        if (cmd.length()) cmd.append("\\");
 #endif
         cmd.append(uPDF);
         QStringList arg(stx + pdf);

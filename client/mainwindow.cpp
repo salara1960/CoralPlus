@@ -449,7 +449,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QObject::connect(this, &MainWindow::sigPackParser, this, &MainWindow::slotPackParser);
 
 
-    LogSave(nullptr, "Start program", true);
+    LogSave(nullptr, "Start client", true);
 
     emit sigNewCon();
 
@@ -483,7 +483,7 @@ MainWindow::~MainWindow()
         if (indexWin[i] != nullptr) delete indexWin[i];
     }
 
-    LogSave(nullptr, "Stop program\n", true);
+    LogSave(nullptr, "Stop client\n", true);
 
     delete ui;
 }
@@ -1201,24 +1201,18 @@ void MainWindow::slot_About()
         lastProc->close();
         lastProc->kill();
         delete lastProc;
-        lastProc = NULL;
+        lastProc = nullptr;
     }
 
     lastProc = new QProcess(this);
 
     if (lastProc) {
-        QString stx = QDir::currentPath();
+        QString stx = QDir::currentPath() + "/";
         QString cmd = "";
 #ifdef _WIN32
-        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\AcroRd32.exe", QSettings::NativeFormat);
-        QString pbro = es.value("Path").toString();
-        if (pbro.length()) {
-            pbro.append("\\");
-            cmd = pbro;
-        }
-        stx.append("/");
-#else
-        stx.append("\\");
+        QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + uPDF, QSettings::NativeFormat);
+        cmd = es.value("Path").toString();
+        if (cmd.length()) cmd.append("\\");
 #endif
         cmd.append(uPDF);
         QStringList arg(stx + pdf);
@@ -1234,6 +1228,7 @@ void MainWindow::slot_About()
         delete lastProc;
         lastProc = nullptr;
     }
+
 }
 //-----------------------------------------------------------------------
 void MainWindow::mousePressEvent(QMouseEvent *e)
