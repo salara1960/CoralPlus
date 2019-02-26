@@ -27,6 +27,7 @@
 #include <QSslError>
 #include <QList>
 #include <QProcess>
+#include <QSystemTrayIcon>
 
 
 #define MAX_CLIENTS 2
@@ -100,6 +101,13 @@ public slots:
     void sReadyRead();
     void sError(QSerialPort::SerialPortError serialPortError);
     void sTimeout();
+    //tray
+    void changeEvent(QEvent*);
+    void closeEvent(QCloseEvent *);
+    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void trayActionExecute();
+    void setTrayIconActions();
+    void showTrayIcon();
 
 signals:
 
@@ -136,6 +144,14 @@ private:
     SslServer *sslServer;
 
     QProcess *lastProc;
+
+    //tray
+    bool fst;
+    QMenu *trayIconMenu;
+    QAction *minA;
+    QAction *maxA;
+    QAction *quitA;
+    QSystemTrayIcon *trayIcon;
 
 };
 

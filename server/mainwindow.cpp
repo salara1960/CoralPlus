@@ -11,7 +11,8 @@
 //const QString ver = "2.0";//19.02.2019 - major changes : ssl tcp socket
 //const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
 //const QString ver = "2.2";//21.02.2019 - minor changes : sslErrors check select by Qt version
-const QString ver = "2.3";//26.02.2019 - minor changes : add start process for coral.pdf open (menu About)
+//const QString ver = "2.3";//26.02.2019 - minor changes : add start process for coral.pdf open (menu About)
+const QString ver = "2.4";//26.02.2019 - major changes : tray mode release
 
 bool demos = false;
 
@@ -179,6 +180,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->setupUi(this);
 
     startTime = time(nullptr);
+    fst = true;
 
     this->setWindowIcon(QIcon("png/srv_main.png"));
     this->setFixedSize(this->size());
@@ -190,6 +192,8 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     ui->cli1->hide();
     ui->cli2->hide();
 
+    this->setTrayIconActions();
+    this->showTrayIcon();
 
     QFont font = this->font();
 #ifdef _WIN32
@@ -667,6 +671,10 @@ void MainWindow::timerEvent(QTimerEvent *event)
         ttm -= startTime;
         ui->date->setHtml(stk + sec_to_time(ttm));
         ui->date->setAlignment(Qt::AlignRight);
+        if (fst) {
+            fst = false;
+            this->hide();
+        }
     }
 }
 //-----------------------------------------------------------------------
@@ -733,4 +741,67 @@ void MainWindow::slotComCli()
                              + " " + QString::number(serial_speed, 10) + " 8N1'\n\n" + temp);
 }
 //-----------------------------------------------------------------------------------
+//**************************************************************************************
+//                            Tray
+//**************************************************************************************
+void MainWindow::showTrayIcon()
+{
+    trayIcon = new QSystemTrayIcon(this);
+    QIcon trayImage("png/srv_main.png");
+    trayIcon->setIcon(trayImage);
+    trayIcon->setContextMenu(trayIconMenu);
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+
+    trayIcon->show();
+}
+//-------------------------------------------------------------------------------------
+void MainWindow::trayActionExecute()
+{
+    //QMessageBox::information(this, "TrayIcon", "Тестовое сообщение. Замените вызов этого сообщения своим кодом.");
+}
+//-------------------------------------------------------------------------------------
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (static_cast<int>(reason)) {
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
+            this->showNormal();
+        break;
+    }
+}
+//-------------------------------------------------------------------------------------
+void MainWindow::setTrayIconActions()
+{
+    minA  = new QAction(QIcon("png/hide.png"), "Hide",     this);
+    maxA  = new QAction(QIcon("png/show.png"), "Show", this);
+    quitA = new QAction(QIcon("png/close.png"),"Quit",        this);
+
+
+    connect(minA, SIGNAL(triggered()),  this, SLOT(hide()));
+    connect(maxA, SIGNAL(triggered()),  this, SLOT(showNormal()));
+    connect(quitA, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minA);
+    trayIconMenu->addAction(maxA);
+    trayIconMenu->addAction(quitA);
+}
+//-------------------------------------------------------------------------------------
+void MainWindow::changeEvent(QEvent *event)
+{
+    QMainWindow::changeEvent(event);
+    if (event->type() == QEvent::WindowStateChange) {
+        if (isMinimized()) this->hide();
+    }
+}
+//-------------------------------------------------------------------------------------
+void MainWindow::closeEvent(QCloseEvent *evt)
+{
+    if (trayIcon->isVisible()) {
+        this->hide();
+        evt->ignore();
+    }
+}
+//**************************************************************************************
 

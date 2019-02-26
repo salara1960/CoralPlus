@@ -4,5 +4,8 @@
         <file>png/Clock.png</file>
         <file>png/connect.png</file>
         <file>png/Comp.png</file>
+        <file>png/close.png</file>
+        <file>png/hide.png</file>
+        <file>png/show.png</file>
     </qresource>
 </RCC>

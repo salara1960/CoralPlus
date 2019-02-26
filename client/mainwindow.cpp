@@ -25,7 +25,8 @@
 //const QString ver = "3.0";//20.02.2019 // major changes : ssl connect to server now support
 //const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
 //const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
-const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
+//const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
+const QString ver = "3.3.1";//26.02.2019 // minor changes : print call_trace_info to log-file
 
 
 
@@ -690,6 +691,7 @@ QString txt = "";//, tp = "";
 uint8_t istat;
 bool bad_port = false;
 int imax = AllBusyCount;
+bool prn = true;
 
 
     uk = reinterpret_cast<uint8_t *>(pk.data() + 1);
@@ -812,12 +814,20 @@ int imax = AllBusyCount;
         case 0x7B:
             txt = pk.toHex().toUpper();
         break;
+        case 0x0C:
+            prn = false;
+        break;
         default:
             txt = pk.toHex().toUpper();
             break;
     }
 
-    ui->l_data->setText(txt);
+    if (prn) ui->l_data->setText(txt);
+    else {
+        txt.clear();
+        txt.append(pk);
+        LogSave(__func__, txt, true);
+    }
     if (imax != AllBusyCount)
         ui->l_busy->setText(QString::number(AllBusyCount, 10) + "/" + QString::number(MaxBusyCount, 10));
 }
