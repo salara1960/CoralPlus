@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QLockFile>
+#include <QDir>
+#include <QMessageBox>
+
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +17,19 @@ char stz[256] = {0};
     if (argc > 3) parse_param_start(argv[3]);
 
     try {
+
+        QLocale loc(QLocale::Russian, QLocale::RussianFederation);
+        QLocale::setDefault(loc);
+
         QApplication a(argc, argv);
+
+        QLockFile lockFile(QDir::temp().absoluteFilePath("CoralPlusSrv.lock"));
+        if (!lockFile.tryLock(100)){
+            QMessageBox::warning(0, "Внимание", "Программа уже запущена");
+            LogSave(__func__, "SECOND MAIN STOP", true);
+            return 1;
+        }
+
         MainWindow wnd(nullptr, bPort, sPort, sSpeed);
         wnd.show();
         a.exec();

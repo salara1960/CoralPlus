@@ -28,6 +28,7 @@
 #include <QList>
 #include <QProcess>
 #include <QSystemTrayIcon>
+#include <QCloseEvent>
 
 
 #define MAX_CLIENTS 2
@@ -59,6 +60,7 @@ extern uint16_t bPort;
 extern QString sPort;
 extern int sSpeed;
 
+extern void LogSave(const char *func, QString st, bool pr);
 extern void parse_param_start(char *param);
 
 //-----------------------------------------------------------------------------------
@@ -147,6 +149,7 @@ private:
 
     //tray
     bool fst;
+    int tmr_hide;
     QMenu *trayIconMenu;
     QAction *minA;
     QAction *maxA;

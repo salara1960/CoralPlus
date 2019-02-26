@@ -12,7 +12,8 @@
 //const QString ver = "2.1";//19.02.2019 - minor changes : select ssl protocol - tlsv1_3 for >= Qt-5.12.0 else tlsv1_2
 //const QString ver = "2.2";//21.02.2019 - minor changes : sslErrors check select by Qt version
 //const QString ver = "2.3";//26.02.2019 - minor changes : add start process for coral.pdf open (menu About)
-const QString ver = "2.4";//26.02.2019 - major changes : tray mode release
+//const QString ver = "2.4";//26.02.2019 - major changes : tray mode release
+const QString ver = "2.5";//26.02.2019 - major changes : only one copy of the program in operation
 
 bool demos = false;
 
@@ -279,6 +280,11 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
         MyError |= 2;//timer error
         throw TheError(MyError);
     }
+    tmr_hide = startTimer(2000);
+    if (tmr_hide <= 0) {
+        MyError |= 2;//timer error
+        throw TheError(MyError);
+    }
 
 
     if (demos) {//demo mode
@@ -383,6 +389,7 @@ MainWindow::~MainWindow()
 
     if (sslServer) delete sslServer;
 
+    if (tmr_hide) killTimer(tmr_hide);
     if (tmr_msec) killTimer(tmr_msec);
     if (tmr) killTimer(tmr);
 
@@ -671,11 +678,13 @@ void MainWindow::timerEvent(QTimerEvent *event)
         ttm -= startTime;
         ui->date->setHtml(stk + sec_to_time(ttm));
         ui->date->setAlignment(Qt::AlignRight);
+    } else if (tmr_hide == event->timerId()) {
         if (fst) {
             fst = false;
             this->hide();
         }
     }
+
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_Release()
@@ -773,9 +782,9 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 //-------------------------------------------------------------------------------------
 void MainWindow::setTrayIconActions()
 {
-    minA  = new QAction(QIcon("png/hide.png"), "Hide",     this);
+    minA  = new QAction(QIcon("png/hide.png"), "Hide", this);
     maxA  = new QAction(QIcon("png/show.png"), "Show", this);
-    quitA = new QAction(QIcon("png/close.png"),"Quit",        this);
+    quitA = new QAction(QIcon("png/close.png"),"Quit", this);
 
 
     connect(minA, SIGNAL(triggered()),  this, SLOT(hide()));
@@ -786,6 +795,7 @@ void MainWindow::setTrayIconActions()
     trayIconMenu->addAction(minA);
     trayIconMenu->addAction(maxA);
     trayIconMenu->addAction(quitA);
+    trayIconMenu->setStyleSheet(QString::fromUtf8("background-color: rgb(200, 200, 200);"));
 }
 //-------------------------------------------------------------------------------------
 void MainWindow::changeEvent(QEvent *event)
