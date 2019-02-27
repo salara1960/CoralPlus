@@ -26,7 +26,8 @@
 //const QString ver = "3.1";//20.02.2019 // minor changes : sslErrors check
 //const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
 //const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
-const QString ver = "3.3.1";//26.02.2019 // minor changes : print call_trace_info to log-file
+//const QString ver = "3.3.1";//26.02.2019 // minor changes : print call_trace_info to log-file
+const QString ver = "3.3.2";//27.02.2019 // minor changes in calc allbusyport
 
 
 
@@ -685,12 +686,14 @@ char sport1[16] = {0};
 char sport2[16] = {0};
 s_one one, two;
 TheWin *pad1 = nullptr, *pad2 = nullptr;
-bool pa = false, pb = false;
+TheWin *pad = nullptr;
+bool pa = false;
+bool pb = false;
 uint8_t byte = static_cast<uint8_t>(pk.at(0));
 QString txt = "";//, tp = "";
-uint8_t istat;
+uint8_t istat;//, lstat = 0;
 bool bad_port = false;
-int imax = AllBusyCount;
+//int imax = AllBusyCount;
 bool prn = true;
 
 
@@ -722,6 +725,7 @@ bool prn = true;
                 if (prt == one.port) {
                     //tp = one.two;
                     one.two = PortStatus[istat];
+                    //lstat = one.status;
                     one.status = istat;
                     pa = true;
                 }
@@ -731,11 +735,11 @@ bool prn = true;
             if (!bad_port) {
                 switch (istat) {
                     case BUSY_STATUS :
-                        AllBusyCount++; if (AllBusyCount > total_ports) AllBusyCount = total_ports;
-                        if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
+                        //AllBusyCount++; if (AllBusyCount > total_ports) AllBusyCount = total_ports;
+                        //if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
                     break;
                     case IDLE_STATUS:
-                        if (AllBusyCount > 0) AllBusyCount--;
+                        //if (AllBusyCount > 0) AllBusyCount--;
                         foreach (pad2, indexWin) {
                             if (pad2) {
                                 if ((pad2->get_two() == prt) && (pad2->get_status() != IDLE_STATUS) && (pad2->get_type() != BAD_TYPE)) {
@@ -749,8 +753,8 @@ bool prn = true;
                     break;
                 }
             }
-            if (pa && pad1) pad1->_update(&one);
-            if (pb && pad2) pad2->_update(&two);
+            if (pa) pad1->_update(&one);
+            if (pb) pad2->_update(&two);
         }
         break;
         case 0x75:
@@ -828,7 +832,20 @@ bool prn = true;
         txt.append(pk);
         LogSave(__func__, txt, true);
     }
-    if (imax != AllBusyCount)
+
+    int kol = 0;
+    foreach (pad, indexWin) {
+        if (pad) {
+            if ((pad->get_status() != IDLE_STATUS) && (pad->get_type() != BAD_TYPE)) {
+                kol++;
+            }
+        }
+    }
+    if (kol > total_ports) kol = total_ports;
+    AllBusyCount = kol;
+    if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
+
+    //if (imax != AllBusyCount)
         ui->l_busy->setText(QString::number(AllBusyCount, 10) + "/" + QString::number(MaxBusyCount, 10));
 }
 //-----------------------------------------------------------------------
