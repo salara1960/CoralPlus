@@ -27,7 +27,8 @@
 //const QString ver = "3.2";//21.02.2019 // minor changes : sslErrors check select by Qt version
 //const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
 //const QString ver = "3.3.1";//26.02.2019 // minor changes : print call_trace_info to log-file
-const QString ver = "3.3.2";//27.02.2019 // minor changes in calc allbusyport
+//const QString ver = "3.3.2";//27.02.2019 // minor changes in calc allbusyport
+const QString ver = "3.4";//28.02.2019 // minor changes : add connection duration
 
 
 
@@ -55,8 +56,8 @@ const static char *NamePortType[] = {"SLT:", "KEY:", "TRK:", "GRP:", "MOD:", "CO
 const QString Name2PortType[] = {"SltSet", "KeySet", "Trunk", "TkGp", "Modem", "Conf", "Bad"};
 
 //const uint8_t KolStatus = 6;
-const QString PortStatus[] = {"", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
-const QString Name2PortStatus[] = {"Idle", "Busy", "Lock", "OutInt", "InExt", "OutExt"};
+const QString PortStatus[] = {"", "Busy", "Lock", "OutInt", "IncExt", "OutExt"};
+const QString Name2PortStatus[] = {"Idle", "Busy", "Lock", "OutgoingInternal_call", "IncommingExternal_call", "OutgoingExternal_call"};
 
 const int wPort = 74;
 const int hPort = 46;
@@ -65,7 +66,9 @@ const int PortsPerLine = 12;
 const int LinePerPage = 12;
 const int PortPerPage = PortsPerLine * LinePerPage; //144
 
-const s_one def_port = {"2000", SLT_TYPE, IDLE_STATUS, "", {}, false};
+const s_one def_port = {"2000", SLT_TYPE, IDLE_STATUS, "", {}, false, 0};
+const s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}, false, 0};
+
 
 const QString LogFileName = "cli_logs.txt";
 //-----------------------------------------------------------------------
@@ -327,6 +330,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ico_black = new QIcon("png/BlackTag.png");
     ico_green = new QIcon("png/GreenTag.png");
 
+    smdr_set   = new QIcon("png/enable.png");
+    smdr_unset = new QIcon("png/disable.png");
+
     QFont font = this->font();
 #ifdef _WIN32
     //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
@@ -376,6 +382,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
 
+    flagSMDR = true;
     lastProc = nullptr;
     ssoc = nullptr;
     mv = nullptr;
@@ -407,10 +414,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(this, SIGNAL(sigShowHideAdminMenu(bool)), this, SLOT(slotShowHideAdminMenu(bool)));
     emit sigShowHideAdminMenu(!AdminFlag);
 
-
+    connect(ui->actionReport_SMDR, SIGNAL(triggered(bool)), this, SLOT(slotSMDR()));
     connect(ui->actionEnable_menu, SIGNAL(triggered(bool)), this, SLOT(slotAdminOn()));
     connect(ui->actionDisable_menu, SIGNAL(triggered(bool)), this, SLOT(slotAdminOff()));
     connect(ui->actionCalc, SIGNAL(triggered(bool)), this, SLOT(slotMakeCalc()));
+
 
     //---------------------------------------------------------------------------
     alls = new QList<s_one>;
@@ -453,6 +461,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     LogSave(nullptr, "Start client", true);
 
+    if (flagSMDR) {
+        ui->actionReport_SMDR->setIcon(*smdr_set);
+    } else {
+        ui->actionReport_SMDR->setIcon(*smdr_unset);
+    }
+
     emit sigNewCon();
 
 }
@@ -479,6 +493,8 @@ MainWindow::~MainWindow()
 
     if (ico_green) delete ico_green;
     if (ico_black) delete ico_black;
+    if (smdr_set) delete smdr_set;
+    if (smdr_unset) delete smdr_unset;
     if (Calc) delete Calc;
 
     for (int i = 0; i < indexWin.length(); i++) {
@@ -488,6 +504,23 @@ MainWindow::~MainWindow()
     LogSave(nullptr, "Stop client\n", true);
 
     delete ui;
+}
+//------------------------------------------------------------------------------
+void MainWindow::slotSMDR()
+{
+    flagSMDR = !flagSMDR;
+    QString stx = "Report SMDR now ";
+    if (flagSMDR) {
+        stx.append("ON");
+        ui->actionReport_SMDR->setIcon(*smdr_set);
+        ui->actionReport_SMDR->setText(stx);
+    } else {
+        stx.append("OFF");
+        ui->actionReport_SMDR->setIcon(*smdr_unset);
+        ui->actionReport_SMDR->setText(stx);
+    }
+    statusBar()->showMessage(stx);
+    LogSave(nullptr, stx, true);
 }
 //------------------------------------------------------------------------------
 QString MainWindow::sec_to_time(time_t &sec)
@@ -690,8 +723,8 @@ TheWin *pad = nullptr;
 bool pa = false;
 bool pb = false;
 uint8_t byte = static_cast<uint8_t>(pk.at(0));
-QString txt = "";//, tp = "";
-uint8_t istat;//, lstat = 0;
+QString txt = "", tp = "";
+uint8_t istat, lstat = 0;
 bool bad_port = false;
 //int imax = AllBusyCount;
 bool prn = true;
@@ -723,9 +756,9 @@ bool prn = true;
             if (pad1) {
                 one = pad1->get_all();
                 if (prt == one.port) {
-                    //tp = one.two;
+                    tp = one.two;
                     one.two = PortStatus[istat];
-                    //lstat = one.status;
+                    lstat = one.status;
                     one.status = istat;
                     pa = true;
                 }
@@ -737,8 +770,18 @@ bool prn = true;
                     case BUSY_STATUS :
                         //AllBusyCount++; if (AllBusyCount > total_ports) AllBusyCount = total_ports;
                         //if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
+                        //one.time = 0;
                     break;
                     case IDLE_STATUS:
+                        if (one.time) {
+                            if (flagSMDR)
+                                LogSave(nullptr,
+                                    "SMDR : " + one.port + " - " + tp
+                                    + " " + Name2PortStatus[lstat]
+                                    + " " + QString::number(myEpoch - one.time, 10) + " sec.\n",
+                                    true);
+                            one.time = 0;
+                        }
                         //if (AllBusyCount > 0) AllBusyCount--;
                         foreach (pad2, indexWin) {
                             if (pad2) {
@@ -800,6 +843,7 @@ bool prn = true;
                 if (pt1 == one.port) {
                     one.two = pt2;
                     one.status = (conn->status & 3) + 3;
+                    one.time = myEpoch;//time(nullptr);//connection start time
                     pad1->_update(&one);
                     if (pt2 == two.port) {
                         two.two = pt1;
@@ -858,7 +902,6 @@ char sstart[MAX_DIGIT_PORT<<1] = {0};
 char sstop[MAX_DIGIT_PORT<<1] = {0};
 char *uks = nullptr, *uk = nullptr;
 const char sep = '-';
-s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}, false};
 s_one one;
 qint64 dl;
 s_tkgp def_tkgp = {"", {}};
@@ -1196,7 +1239,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 {
 
     if (tmr == event->timerId()) {
-
+        myEpoch++;
         QDateTime dt = QDateTime::currentDateTime();
         QString dts(dt.toString("dd.MM.yy hh:mm:ss"));
         time_t tmp = dt.toTime_t() - time_start;

@@ -43,6 +43,7 @@ typedef struct {
     QString two;
     QStringList trunks;
     bool info;
+    uint32_t time;
 } s_one;
 
 typedef struct {
@@ -192,6 +193,7 @@ public slots:
     void slotAdminOff();
     void slotSetPwd(QString);
     void slotMakeCalc();
+    void slotSMDR();
 
     void readData();
     void connectSsl();
@@ -240,6 +242,10 @@ private:
     int MaxPages;
 
     QProcess *lastProc;
+
+    uint32_t myEpoch;
+    bool flagSMDR;
+    QIcon *smdr_set, *smdr_unset;
 
 };
 
