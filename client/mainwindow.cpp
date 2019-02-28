@@ -461,11 +461,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     LogSave(nullptr, "Start client", true);
 
+
+    QString stx = "Report SMDR now ";
     if (flagSMDR) {
+        stx.append("ON");
         ui->actionReport_SMDR->setIcon(*smdr_set);
+        ui->actionReport_SMDR->setText(stx);
     } else {
+        stx.append("OFF");
         ui->actionReport_SMDR->setIcon(*smdr_unset);
+        ui->actionReport_SMDR->setText(stx);
     }
+    LogSave(nullptr, stx, true);
 
     emit sigNewCon();
 
@@ -519,7 +526,7 @@ void MainWindow::slotSMDR()
         ui->actionReport_SMDR->setIcon(*smdr_unset);
         ui->actionReport_SMDR->setText(stx);
     }
-    statusBar()->showMessage(stx);
+    //statusBar()->showMessage(stx);
     LogSave(nullptr, stx, true);
 }
 //------------------------------------------------------------------------------
