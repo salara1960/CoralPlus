@@ -28,7 +28,7 @@
 //const QString ver = "3.3";//26.02.2019 // minor changes : add start process for coral.pdf open (menu About)
 //const QString ver = "3.3.1";//26.02.2019 // minor changes : print call_trace_info to log-file
 //const QString ver = "3.3.2";//27.02.2019 // minor changes in calc allbusyport
-const QString ver = "3.4";//28.02.2019 // minor changes : add connection duration
+const QString ver = "3.4";//28.02.2019 // minor changes : add SMDR - connection duration
 
 
 
@@ -356,6 +356,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->actionReport_of_maliciouse_calls->setFont(font);
     ui->actionReport_of_post_messages_to_subscribers->setFont(font);
     ui->actionSnapShot_all_trunk_groups->setFont(font);
+    ui->actionReport_SMDR->setFont(font);
 
     ui->statusBar->setFont(font);
 
@@ -380,7 +381,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     /**/
 #endif
 
-    ui->l_all_ports->setToolTip("MaxPort "+QString::number(max_adr, 10));
+    ui->l_all_ports->setToolTip("MaxPort " + QString::number(max_adr, 10));
 
     flagSMDR = true;
     lastProc = nullptr;

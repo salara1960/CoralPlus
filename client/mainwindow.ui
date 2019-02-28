@@ -861,6 +861,7 @@ background-color: rgb(170, 170, 170);</string>
     <property name="title">
      <string>Service</string>
     </property>
+    <addaction name="actionReport_SMDR"/>
     <addaction name="actionReport_of_post_messages_to_subscribers"/>
     <addaction name="actionReport_blocking_file"/>
     <addaction name="actionReport_of_maliciouse_calls"/>
@@ -1886,6 +1887,21 @@ background-color: rgb(170, 170, 170);</string>
    </property>
    <property name="text">
     <string>Release</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>DejaVu Sans</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionReport_SMDR">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/png/doc.png</normaloff>:/png/doc.png</iconset>
+   </property>
+   <property name="text">
+    <string>Report SMDR</string>
    </property>
    <property name="font">
     <font>
