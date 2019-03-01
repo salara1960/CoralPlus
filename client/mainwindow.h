@@ -87,9 +87,7 @@ enum port_status {
     OEXT_STATUS,
     NONE_STATUS
 };
-//IDLE_STATUS - Outgoing internal call - status 0x00
-//BUSY_STATUS - Incoming external call - status 0x01
-//LOCK_STATUS - Outgoing external call - status 0x02
+
 //--------------------------------------------------------------------------------
 
 extern QString ServerIPAddress;

@@ -335,13 +335,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     QFont font = this->font();
 #ifdef _WIN32
-    //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
     font.setPixelSize(14);//15
     ui->l_busy->setFont(font);
     ui->l_all_ports->setFont(font);
     ui->l_date_time->setFont(font);
     ui->l_data->setFont(font);
-
     ui->menu->setFont(font);
     ui->menuBar->setFont(font);
     ui->menu_2->setFont(font);
@@ -357,19 +355,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->actionReport_of_post_messages_to_subscribers->setFont(font);
     ui->actionSnapShot_all_trunk_groups->setFont(font);
     ui->actionReport_SMDR->setFont(font);
-
     ui->statusBar->setFont(font);
-
     ui->win_area->setFont(font);
 #else
-    /**/
-    //font.fromString(QString::fromUtf8("font: 12pt Sans Serif;"));
     font.setPixelSize(15);//15
     ui->l_busy->setFont(font);
     ui->l_all_ports->setFont(font);
     ui->l_date_time->setFont(font);
     ui->l_data->setFont(font);
-    //font.setPixelSize(16);//18
     ui->menu->setFont(font);
     ui->menuBar->setFont(font);
     ui->menu_2->setFont(font);
@@ -378,7 +371,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     font.setPixelSize(14);
     ui->win_area->setFont(font);
     this->setFont(font);
-    /**/
 #endif
 
     ui->l_all_ports->setToolTip("MaxPort " + QString::number(max_adr, 10));
@@ -404,7 +396,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     sbar = "Server : " + ServerIPAddress + " ConfigFile : " + CfgFil + " User : " + myPwd;
     statusBar()->showMessage(sbar);
 
-    qApp->installEventFilter(this);
+    qApp->installEventFilter(this);//for disable hide statusBar when select menu item
 
 
     time_start = QDateTime::currentDateTime().toTime_t();
@@ -413,7 +405,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(slot_About()));
 
     connect(this, SIGNAL(sigShowHideAdminMenu(bool)), this, SLOT(slotShowHideAdminMenu(bool)));
-    emit sigShowHideAdminMenu(!AdminFlag);
+    emit sigShowHideAdminMenu(!AdminFlag);//disable extended menu
 
     connect(ui->actionReport_SMDR, SIGNAL(triggered(bool)), this, SLOT(slotSMDR()));
     connect(ui->actionEnable_menu, SIGNAL(triggered(bool)), this, SLOT(slotAdminOn()));
@@ -460,9 +452,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QObject::connect(this, &MainWindow::sigPackParser, this, &MainWindow::slotPackParser);
 
 
-    LogSave(nullptr, "Start client", true);
-
-
     QString stx = "Report SMDR now ";
     if (flagSMDR) {
         stx.append("ON");
@@ -474,6 +463,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->actionReport_SMDR->setText(stx);
     }
     LogSave(nullptr, stx, true);
+
+    LogSave(nullptr, "Start client", true);
 
     emit sigNewCon();
 
@@ -501,8 +492,10 @@ MainWindow::~MainWindow()
 
     if (ico_green) delete ico_green;
     if (ico_black) delete ico_black;
+
     if (smdr_set) delete smdr_set;
     if (smdr_unset) delete smdr_unset;
+
     if (Calc) delete Calc;
 
     for (int i = 0; i < indexWin.length(); i++) {
@@ -734,7 +727,6 @@ uint8_t byte = static_cast<uint8_t>(pk.at(0));
 QString txt = "", tp = "";
 uint8_t istat, lstat = 0;
 bool bad_port = false;
-//int imax = AllBusyCount;
 bool prn = true;
 
 
@@ -897,8 +889,7 @@ bool prn = true;
     AllBusyCount = kol;
     if (MaxBusyCount < AllBusyCount) MaxBusyCount = AllBusyCount;
 
-    //if (imax != AllBusyCount)
-        ui->l_busy->setText(QString::number(AllBusyCount, 10) + "/" + QString::number(MaxBusyCount, 10));
+    ui->l_busy->setText(QString::number(AllBusyCount, 10) + "/" + QString::number(MaxBusyCount, 10));
 }
 //-----------------------------------------------------------------------
 bool MainWindow::GetConfigFile()
@@ -1043,6 +1034,7 @@ void MainWindow::InitScreen()
 {
     if (!total_ports) return;
 
+    int constY = 27;
     TheWin *adr = nullptr;
     s_one s_port = def_port;
     _page = 0; _last = 0;
@@ -1052,7 +1044,7 @@ void MainWindow::InitScreen()
     QRect rect = ui->win_area->geometry();
     int x = rect.x();
     int y = rect.y();
-    if (ui->win_area->tabPosition() == QTabWidget::North) y += 27;
+    if (ui->win_area->tabPosition() == QTabWidget::North) y += constY;
 
     int w = left_border;
     int h = top_border;
@@ -1098,7 +1090,7 @@ void MainWindow::InitScreen()
                 clin = 0;
                 h = top_border;
                 y = top_border;
-                if (ui->win_area->tabPosition() == QTabWidget::North) y += 27;
+                if (ui->win_area->tabPosition() == QTabWidget::North) y += constY;
         }
     }
 
@@ -1124,6 +1116,7 @@ void MainWindow::updateBar()
 {
     sbar = "Server : " + ServerIPAddress + " ConfigFile : " + CfgFil + " User : " + myPwd;
     statusBar()->showMessage(sbar);
+
     emit sigShowHideAdminMenu(!AdminFlag);
 }
 //-----------------------------------------------------------------------
@@ -1131,8 +1124,10 @@ void MainWindow::slotSetPwd(QString pwd)
 {
     myPwd = pwd;
     if (myPwd == _myPwd) AdminFlag = true; else AdminFlag = false;
+
     if (Dlg) delete Dlg;
     Dlg = nullptr;
+
     updateBar();
 }
 //-----------------------------------------------------------------------
@@ -1149,6 +1144,7 @@ void MainWindow::slotAdminOff()
 {
     AdminFlag = false;
     myPwd.clear();
+
     updateBar();
 }
 //-----------------------------------------------------------------------
@@ -1165,7 +1161,6 @@ void MainWindow::slotShowHideAdminMenu(bool flag)
     ui->actionReport_of_maliciouse_calls->setDisabled(flag);
     ui->actionSnapShot_all_trunk_groups->setDisabled(flag);
     ui->actionReport_blocking_file->setDisabled(flag);
-
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_page(int cp)
@@ -1248,6 +1243,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
     if (tmr == event->timerId()) {
         myEpoch++;
+
         QDateTime dt = QDateTime::currentDateTime();
         QString dts(dt.toString("dd.MM.yy hh:mm:ss"));
         time_t tmp = dt.toTime_t() - time_start;
@@ -1268,7 +1264,9 @@ void MainWindow::timerEvent(QTimerEvent *event)
 //-----------------------------------------------------------------------
 void MainWindow::slot_Release()
 {
-    QMessageBox::information(this, "Info", "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nSource https://github.com/salara1960/CoralPlus\nQt framework version " + QT_VERSION_STR + "\n");
+    QMessageBox::information(this,
+                             "Info",
+                             "\nCoral Plus ssl client\nVersion " + ver + "\nBuild #" + BUILD + "\nSource https://github.com/salara1960/CoralPlus\nQt framework version " + QT_VERSION_STR + "\n");
 }
 //-----------------------------------------------------------------------
 void MainWindow::slot_About()
