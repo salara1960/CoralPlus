@@ -42,6 +42,7 @@
 int src = -1;
 uint8_t buf[256] = {0};
 char ts[128] = {0};
+const char *demo_file_name = "demo.dmp";
 
 //---------------------------------------------------------------------
 char *ThisTime(char *t)
@@ -49,7 +50,7 @@ char *ThisTime(char *t)
 struct timeval tvl;
 
     gettimeofday(&tvl, NULL);
-    time_t it_ct = tvl.tv_sec;//QDateTime::currentDateTime().toTime_t();
+    time_t it_ct = tvl.tv_sec;
     struct tm *ctimka = localtime(&it_ct);
     sprintf(t, "%02d.%02d %02d:%02d:%02d.%03d | ",
                 ctimka->tm_mday,
@@ -70,14 +71,14 @@ int len = 0, lp = 1, i, ind = 0;
 
     memset(buf, 0, sizeof(buf));
 
-    if (src == -1) src = open("demo.dmp", O_RDONLY);
+    if (src == -1) src = open(demo_file_name, O_RDONLY);
     if (src == -1) return ret;
 
     while (lp) {
         len = read(src, &byte, 1);
         if (!len) {
             close(src);
-            src = open("dmp.dmp", O_RDONLY);
+            src = open(demo_file_name, O_RDONLY);
             if (src == -1) return -1;
         }
         buf[ind] = byte; ind++;
@@ -134,13 +135,13 @@ int rlen = 0;
         ispd = atoi(uk + 1);
         *uk = '\0';
 #ifndef SET_WIN32
-	switch (ispd) {
-	    case 9600 : spd = B9600; break;
-	    case 19200 : spd = B19200; break;
-	    case 38400 : spd = B38400; break;
-	    case 57600 : spd = B57600; break;
-	    case 115200 : spd = B115200; break;
-	}
+        switch (ispd) {
+            case 9600 : spd = B9600; break;
+            case 19200 : spd = B19200; break;
+            case 38400 : spd = B38400; break;
+            case 57600 : spd = B57600; break;
+            case 115200 : spd = B115200; break;
+        }
 #endif
     }
     strcpy(dev_name, par);
@@ -149,12 +150,12 @@ int rlen = 0;
 
 #ifdef SET_WIN32
     fd = CreateFile(dev_name,
-    	    GENERIC_WRITE,
-	        0,
-	        0,
-	        OPEN_EXISTING,
-	        0,
-	        0);
+                    GENERIC_WRITE,
+                    0,
+                    0,
+                    OPEN_EXISTING,
+                    0,
+                    0);
     if (fd == INVALID_HANDLE_VALUE) {
         printf("%s Can't open %s file\n", ThisTime(ts), dev_name);
         return 1;
@@ -205,7 +206,7 @@ int rlen = 0;
                 sprintf(chap,"%s Error sending to device %lu bytes : %s", ThisTime(ts), txlen, strerror(errno));
             } else {
                 sprintf(chap,"%s Write to device (%lu): ", ThisTime(ts), txlen);
-            	for (i = 0; i < rxlen; i++) sprintf(chap+strlen(chap),"%02X", buf[i]);
+                for (i = 0; i < rxlen; i++) sprintf(chap+strlen(chap),"%02X", buf[i]);
             }
             printf("%s\n", chap);
 #else
