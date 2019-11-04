@@ -1,6 +1,12 @@
 
 # CoralPlus
 
-CoralPlus service application : server + client for Coral Flexicom switching system (Qt release)
 
-Now tcp connection working in ssl (tls1.2) mode
+### CoralPlus service application (ssl mode)
+
+start program : ./CoralPlusSrv mode=work bind=6543 serial=/dev/ttyUSB0:9600
+
+
+#### CoralPlus client application (ssl mode)
+
+start program : ./CoralPlusCli serverip=127.0.0.1 cfgfile=coral.npl

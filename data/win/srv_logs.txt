@@ -1,0 +1,23 @@
+02.11 15:11:41.733 | [MainWindow] Start server with :
+	bind_port 6543
+	serial_port COM3 9600 8N1
+02.11 15:11:41.748 | [MainWindow] Client's address : '127.0.0.1' , '192.168.0.101'
+02.11 15:11:41.764 | [MainWindow] SSL Server start, listen port 6543
+02.11 15:12:16.495 | [qMain] SECOND MAIN STOP
+02.11 15:13:57.632 | [qMain] SECOND MAIN STOP
+02.11 15:16:01.285 | [MainWindow] Start server with :
+	bind_port 6543
+	serial_port COM3 9600 8N1
+02.11 15:16:01.300 | [MainWindow] Client's address : '127.0.0.1' , '192.168.0.101'
+02.11 15:16:01.316 | [MainWindow] SSL Server start, listen port 6543
+02.11 15:18:57.223 | [MainWindow] Start server with :
+	bind_port 6543
+	serial_port COM3 9600 8N1
+02.11 15:18:57.223 | [MainWindow] Client's address : '127.0.0.1' , '192.168.0.101'
+02.11 15:18:57.239 | [MainWindow] SSL Server start, listen port 6543
+03.11 14:33:11.707 | [MainWindow] Start server with :
+	bind_port 6543
+	serial_port COM3 9600 8N1
+03.11 14:33:11.714 | [MainWindow] Client's address : '127.0.0.1' , '192.168.0.101'
+03.11 14:33:11.728 | [MainWindow] SSL Server start, listen port 6543
+03.11 14:34:08.675 | [~MainWindow] Stop SSL server

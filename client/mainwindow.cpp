@@ -37,7 +37,7 @@ QString CfgFil = "coral.npl";
 QString TrkFil = "coral.trk";
 
 const QString pdf = "coral.pdf";
-#ifdef _WIN32
+#ifdef __WIN32
     const QString uPDF = "AcroRd32.exe";
 #else
     const QString uPDF = "acroread";
@@ -67,7 +67,7 @@ const int LinePerPage = 12;
 const int PortPerPage = PortsPerLine * LinePerPage; //144
 
 const s_one def_port = {"2000", SLT_TYPE, IDLE_STATUS, "", {}, false, 0};
-const s_one def_one = {"", BAD_TYPE, IDLE_STATUS, "", {}, false, 0};
+const s_one def_one  = {"",     BAD_TYPE, IDLE_STATUS, "", {}, false, 0};
 
 
 const QString LogFileName = "cli_logs.txt";
@@ -246,14 +246,14 @@ itInfo::itInfo(QWidget *parent, TheWin *uk) : QDialog(parent), uid(new Ui::itInf
 
     uid->setupUi(this);
 
-#ifdef _WIN32
+#ifdef __WIN32
     QFont font = this->font();
     font.setPixelSize(14);
     this->setFont(font);
     uid->txt->setFont(font);
 #endif
 
-    //this->setWindowIcon(QIcon("png/info.png"));
+    //this->setWindowIcon(QIcon(pic_info));
     this->setFixedSize(this->size());
 
     ss_def = uid->txt->styleSheet();
@@ -323,18 +323,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    this->setWindowIcon(QIcon("png/cli_main.png"));
+    this->setWindowIcon(QIcon(pic_main));
     this->setFixedSize(this->size());
     this->setWindowTitle("CoralPlus ssl client ver." + ver);
 
-    ico_black = new QIcon("png/BlackTag.png");
-    ico_green = new QIcon("png/GreenTag.png");
+    ico_black = new QIcon(pic_black);
+    ico_green = new QIcon(pic_green);
 
-    smdr_set   = new QIcon("png/enable.png");
-    smdr_unset = new QIcon("png/disable.png");
+    smdr_set   = new QIcon(pic_enable);
+    smdr_unset = new QIcon(pic_enable);
 
     QFont font = this->font();
-#ifdef _WIN32
+#ifdef __WIN32
     font.setPixelSize(14);//15
     ui->l_busy->setFont(font);
     ui->l_all_ports->setFont(font);
@@ -427,7 +427,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //---------------------------------------------------------------------------
 
     ui->run->hide();
-    mv = new QMovie("png/move.gif");
+    mv = new QMovie(pic_move);
     ui->run->setMovie(mv);
     mv->start();
 
@@ -693,12 +693,12 @@ uint32_t my_htonl(uint32_t in)
 {
 uint32_t res = in;
 
-#ifdef _WIN32
+#ifdef __WIN32
     uint8_t *uk;
     uint8_t b1, b2;
 
     res = (res >> 16) | (res << 16);
-    uk = (uint8_t *)&res;
+    uk = reinterpret_cast<uint8_t *>(&res);
     b1 = *uk; b2 = *(uk+1);
     *uk = b2; *(uk+1) = b1;
     b1 = *(uk+2); b2 = *(uk+3);
@@ -1285,7 +1285,7 @@ void MainWindow::slot_About()
     if (lastProc) {
         QString stx = QDir::currentPath() + "/";
         QString cmd = "";
-#ifdef _WIN32
+#ifdef __WIN32
         QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + uPDF, QSettings::NativeFormat);
         cmd = es.value("Path").toString();
         if (cmd.length()) cmd.append("\\");

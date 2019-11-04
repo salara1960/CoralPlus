@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#ifdef _WIN32
+#ifdef __WIN32
     #include <windows.h>
 #else
     #include <arpa/inet.h>

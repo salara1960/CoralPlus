@@ -245,6 +245,15 @@ private:
     bool flagSMDR;
     QIcon *smdr_set, *smdr_unset;
 
+    const QString pic_path = "png/";
+    const QString pic_main = pic_path + "cli_main.png";
+    const QString pic_black = pic_path + "BlackTag.png";
+    const QString pic_green = pic_path + "GreenTag.png";
+    const QString pic_enable = pic_path + "enable.png";
+    const QString pic_disable = pic_path + "disable.png";
+    const QString pic_move = pic_path + "move.gif";
+    const QString pic_info = pic_path + "info.png";
+
 };
 
 #endif // MAINWINDOW_H

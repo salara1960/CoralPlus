@@ -24,7 +24,7 @@ const QString LogFileName = "srv_logs.txt";
 const QString ipFileName = "coral.ip";
 
 const QString pdf = "coral.pdf";
-#ifdef _WIN32
+#ifdef __WIN32
     const QString uPDF = "AcroRd32.exe";
 #else
     const QString uPDF = "acroread";
@@ -183,7 +183,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     startTime = time(nullptr);
     fst = true;
 
-    this->setWindowIcon(QIcon("png/srv_main.png"));
+    this->setWindowIcon(QIcon(pic_main));
     this->setFixedSize(this->size());
     if (demos)
         this->setWindowTitle("CoralPlus ssl server ver." + ver + " | demo mode");
@@ -197,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
     this->showTrayIcon();
 
     QFont font = this->font();
-#ifdef _WIN32
+#ifdef __WIN32
     font.setPixelSize(16);
 #else
     font.setPixelSize(15);//14
@@ -307,7 +307,7 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
             sobj->flush();
             sobj->clear(QSerialPort::Input);
             QObject::connect(sobj, &QSerialPort::readyRead, this, &MainWindow::sReadyRead);
-#ifdef _WIN32
+#ifdef __WIN32
             connect(sobj, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(sError(QSerialPort::SerialPortError)));
 #else
             QObject::connect(sobj, &QSerialPort::errorOccurred, this, &MainWindow::sError);
@@ -326,8 +326,8 @@ MainWindow::MainWindow(QWidget *parent, uint16_t bp, QString sp, int ss) : QMain
         MyError |= 4;//create server object error - no memory
         throw TheError(MyError);
     }
-    sslServer->setSslLocalCertificate("key.pem");
-    sslServer->setSslPrivateKey("key.key");
+    sslServer->setSslLocalCertificate(fCert);
+    sslServer->setSslPrivateKey(fKey);
 //#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 //    sslServer->setSslProtocol(QSsl::TlsV1_3);
 //#else
@@ -715,7 +715,7 @@ void MainWindow::slot_About()
     if (lastProc) {
         QString stx = QDir::currentPath() + "/";
         QString cmd = "";
-#ifdef _WIN32
+#ifdef __WIN32
         QSettings es("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + uPDF, QSettings::NativeFormat);
         cmd = es.value("Path").toString();
         if (cmd.length()) cmd.append("\\");
@@ -756,7 +756,7 @@ void MainWindow::slotComCli()
 void MainWindow::showTrayIcon()
 {
     trayIcon = new QSystemTrayIcon(this);
-    QIcon trayImage("png/srv_main.png");
+    QIcon trayImage(pic_main);
     trayIcon->setIcon(trayImage);
     trayIcon->setContextMenu(trayIconMenu);
 
@@ -782,9 +782,9 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 //-------------------------------------------------------------------------------------
 void MainWindow::setTrayIconActions()
 {
-    minA  = new QAction(QIcon("png/hide.png"), "Hide", this);
-    maxA  = new QAction(QIcon("png/show.png"), "Show", this);
-    quitA = new QAction(QIcon("png/close.png"),"Quit", this);
+    minA  = new QAction(QIcon(pic_hide), "Hide", this);
+    maxA  = new QAction(QIcon(pic_show), "Show", this);
+    quitA = new QAction(QIcon(pic_close),"Quit", this);
 
 
     connect(minA, SIGNAL(triggered()),  this, SLOT(hide()));

@@ -36,7 +36,7 @@
 #define DEF_SPEED 9600
 #define DEF_TIMEOUT 1000
 
-#ifdef _WIN32
+#ifdef __WIN32
     const QString def_serial_port = "COM3";
 #else
     const QString def_serial_port = "/dev/ttyUSB0";
@@ -154,7 +154,16 @@ private:
     QAction *minA;
     QAction *maxA;
     QAction *quitA;
-    QSystemTrayIcon *trayIcon;
+    QSystemTrayIcon *trayIcon;   
+
+    const QString pic_path = "png/";
+    const QString pic_main = pic_path + "srv_main.png";
+    const QString pic_hide = pic_path + "eyeHide.png";
+    const QString pic_show = pic_path + "eyeShow.png";
+    const QString pic_close = pic_path + "close.png";
+
+    const QString fCert = "key.pem";
+    const QString fKey = "key.key";
 
 };
 
