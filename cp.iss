@@ -51,7 +51,7 @@ Source: "key.key"; DestDir: "{app}"; Components: base
 Source: "key.pem"; DestDir: "{app}"; Components: base
 ;Source: "README.md"; DestDir: "{app}"; Components: base
 
-Source: "dll\*.dll"; DestDir: "{app}"; Components: base
+Source: "libs\*.dll"; DestDir: "{app}"; Components: base
 Source: "png\*.*"; DestDir: "{app}\png\"; Components: base
 ;Source: "imageformats\*.dll"; DestDir: "{app}"; Components: base
 
